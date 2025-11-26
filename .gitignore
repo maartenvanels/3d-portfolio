@@ -1,0 +1,13 @@
+# Claude Code settings
+.claude/
+
+# PDF files (personal documents)
+*.pdf
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

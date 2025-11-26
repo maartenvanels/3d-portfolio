@@ -1,0 +1,1508 @@
+/* ============================================
+   CSS VARIABLES - Exact GitHub Primer Design
+   ============================================ */
+:root {
+    /* GitHub Primer Colors */
+    --color-canvas-default: #ffffff;
+    --color-canvas-subtle: #f6f8fa;
+    --color-canvas-inset: #eff2f5;
+    --color-canvas-overlay: #ffffff;
+
+    --color-fg-default: #1f2328;
+    --color-fg-muted: #656d76;
+    --color-fg-subtle: #6e7781;
+
+    --color-border-default: #d0d7de;
+    --color-border-muted: #d8dee4;
+    --color-border-subtle: rgba(31, 35, 40, 0.15);
+
+    --color-accent-fg: #0969da;
+    --color-accent-emphasis: #0969da;
+    --color-accent-subtle: #ddf4ff;
+
+    --color-success-fg: #1a7f37;
+    --color-success-emphasis: #1f883d;
+    --color-success-subtle: #dafbe1;
+
+    --color-attention-fg: #9a6700;
+    --color-attention-emphasis: #bf8700;
+    --color-attention-subtle: #fff8c5;
+
+    --color-danger-fg: #d1242f;
+    --color-danger-emphasis: #cf222e;
+
+    --color-neutral-emphasis: #6e7781;
+    --color-neutral-muted: rgba(175, 184, 193, 0.2);
+
+    /* GitHub Shadows */
+    --shadow-resting-xsmall: 0 1px 0 rgba(31, 35, 40, 0.04);
+    --shadow-resting-small: 0 1px 0 rgba(31, 35, 40, 0.04), 0 1px 3px rgba(31, 35, 40, 0.12);
+    --shadow-resting-medium: 0 3px 6px rgba(140, 149, 159, 0.15);
+    --shadow-floating-small: 0 0 0 1px rgba(31, 35, 40, 0.04), 0 3px 8px rgba(31, 35, 40, 0.15);
+    --shadow-floating-medium: 0 0 0 1px rgba(31, 35, 40, 0.04), 0 8px 16px rgba(31, 35, 40, 0.15);
+    --shadow-floating-large: 0 0 0 1px rgba(31, 35, 40, 0.04), 0 12px 28px rgba(31, 35, 40, 0.2);
+
+    /* GitHub Spacing */
+    --base-size-4: 4px;
+    --base-size-8: 8px;
+    --base-size-12: 12px;
+    --base-size-16: 16px;
+    --base-size-20: 20px;
+    --base-size-24: 24px;
+    --base-size-32: 32px;
+    --base-size-40: 40px;
+    --base-size-48: 48px;
+
+    /* GitHub Border Radius */
+    --borderRadius-small: 3px;
+    --borderRadius-medium: 6px;
+    --borderRadius-large: 12px;
+    --borderRadius-full: 100px;
+
+    /* GitHub Typography */
+    --fontStack-system: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    --fontStack-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+
+    --text-body-size-medium: 14px;
+    --text-body-size-small: 12px;
+    --text-title-size-large: 32px;
+    --text-title-size-medium: 20px;
+
+    /* Z-Index */
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-overlay: 400;
+    --z-modal: 500;
+    --z-loading: 1000;
+}
+
+/* ============================================
+   DARK THEME - GitHub Primer Dark
+   ============================================ */
+.dark-theme {
+    --color-canvas-default: #0d1117;
+    --color-canvas-subtle: #161b22;
+    --color-canvas-inset: #010409;
+    --color-canvas-overlay: #161b22;
+
+    --color-fg-default: #e6edf3;
+    --color-fg-muted: #8b949e;
+    --color-fg-subtle: #6e7681;
+
+    --color-border-default: #30363d;
+    --color-border-muted: #21262d;
+    --color-border-subtle: rgba(240, 246, 252, 0.1);
+
+    --color-accent-fg: #58a6ff;
+    --color-accent-emphasis: #1f6feb;
+    --color-accent-subtle: rgba(56, 139, 253, 0.15);
+
+    --color-success-fg: #3fb950;
+    --color-success-emphasis: #238636;
+    --color-success-subtle: rgba(46, 160, 67, 0.15);
+
+    --color-attention-fg: #d29922;
+    --color-attention-emphasis: #9e6a03;
+    --color-attention-subtle: rgba(187, 128, 9, 0.15);
+
+    --color-danger-fg: #f85149;
+    --color-danger-emphasis: #da3633;
+
+    --color-neutral-emphasis: #6e7681;
+    --color-neutral-muted: rgba(110, 118, 129, 0.4);
+
+    /* Dark Shadows */
+    --shadow-resting-xsmall: 0 1px 0 rgba(0, 0, 0, 0.1);
+    --shadow-resting-small: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-resting-medium: 0 3px 6px rgba(0, 0, 0, 0.3);
+    --shadow-floating-small: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.25);
+    --shadow-floating-medium: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.25);
+    --shadow-floating-large: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme specific overrides */
+.dark-theme .btn-primary:hover {
+    background: #2ea043;
+}
+
+.dark-theme .tech-tags span:hover {
+    background: rgba(56, 139, 253, 0.3);
+}
+
+.dark-theme .skill-tag.primary:hover {
+    background: rgba(56, 139, 253, 0.3);
+}
+
+.dark-theme .skill-tag.accent:hover {
+    background: rgba(187, 128, 9, 0.3);
+}
+
+.dark-theme kbd {
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-border-default);
+    box-shadow: inset 0 -1px 0 var(--color-border-muted);
+}
+
+.dark-theme .modal-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--fontStack-system);
+    font-size: var(--text-body-size-medium);
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    line-height: 1.5;
+    overflow: hidden;
+}
+
+/* ============================================
+   CANVAS
+   ============================================ */
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-base);
+}
+
+/* ============================================
+   LOADING SCREEN - GitHub Style
+   ============================================ */
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--color-canvas-default);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: var(--z-loading);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--base-size-16);
+}
+
+.loader-ring {
+    width: 32px;
+    height: 32px;
+    position: relative;
+}
+
+.loader-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-default);
+    border-top-color: var(--color-accent-fg);
+    animation: spin 0.6s linear infinite;
+}
+
+.loader-ring-inner {
+    display: none;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.loader-content h2 {
+    font-size: var(--text-body-size-medium);
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: var(--base-size-4);
+}
+
+.loader-subtitle {
+    font-size: var(--text-body-size-small);
+    color: var(--color-fg-muted);
+    margin-bottom: var(--base-size-12);
+}
+
+.loader-progress {
+    width: 180px;
+    height: 4px;
+    background: var(--color-neutral-muted);
+    border-radius: var(--borderRadius-full);
+    overflow: hidden;
+}
+
+.loader-progress-bar {
+    height: 100%;
+    background: var(--color-accent-emphasis);
+    border-radius: var(--borderRadius-full);
+    animation: progress 1.2s ease-in-out forwards;
+}
+
+@keyframes progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.loader-stats {
+    display: none;
+}
+
+.loader-quote {
+    margin-top: var(--base-size-24);
+    padding: var(--base-size-16);
+    border-left: 3px solid var(--color-accent-fg);
+    background: var(--color-canvas-subtle);
+    border-radius: 0 var(--borderRadius-medium) var(--borderRadius-medium) 0;
+    max-width: 300px;
+}
+
+.loader-quote p {
+    font-size: var(--text-body-size-medium);
+    font-style: italic;
+    color: var(--color-fg-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ============================================
+   UI OVERLAY
+   ============================================ */
+#ui-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: var(--z-dropdown);
+}
+
+#ui-overlay > * {
+    pointer-events: auto;
+}
+
+/* ============================================
+   TOP BAR - GitHub Header
+   ============================================ */
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    padding: 0 var(--base-size-16);
+    background: var(--color-canvas-default);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-8);
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-fg-default);
+}
+
+.logo-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.logo-name {
+    font-size: var(--text-body-size-medium);
+    font-weight: 600;
+    color: var(--color-fg-default);
+    line-height: 1.2;
+}
+
+.logo-tagline {
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    line-height: 1.2;
+}
+
+.top-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-4);
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: var(--base-size-8) var(--base-size-12);
+    font-size: var(--text-body-size-medium);
+    font-weight: 500;
+    color: var(--color-fg-default);
+    text-decoration: none;
+    border-radius: var(--borderRadius-medium);
+    transition: background 80ms;
+}
+
+.nav-link:hover {
+    background: var(--color-neutral-muted);
+}
+
+.nav-link.active {
+    font-weight: 600;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-8);
+}
+
+/* GitHub Icon Button */
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--borderRadius-medium);
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    transition: background 80ms;
+}
+
+.btn-icon:hover {
+    background: var(--color-neutral-muted);
+    color: var(--color-fg-default);
+}
+
+.btn-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* GitHub Primary Button (Green) */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--base-size-4);
+    height: 32px;
+    padding: 0 12px;
+    font-size: var(--text-body-size-medium);
+    font-weight: 500;
+    font-family: inherit;
+    color: #ffffff;
+    background: var(--color-success-emphasis);
+    border: 1px solid rgba(31, 35, 40, 0.15);
+    border-radius: var(--borderRadius-medium);
+    cursor: pointer;
+    transition: background 80ms;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-primary:hover {
+    background: #1a7f37;
+}
+
+.btn-primary svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* GitHub Secondary Button */
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--base-size-4);
+    height: 32px;
+    padding: 0 12px;
+    font-size: var(--text-body-size-medium);
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--color-fg-default);
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--borderRadius-medium);
+    cursor: pointer;
+    transition: background 80ms, border-color 80ms;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-secondary:hover {
+    background: var(--color-canvas-inset);
+    border-color: var(--color-border-default);
+}
+
+.btn-secondary svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-large {
+    height: 40px;
+    padding: 0 16px;
+}
+
+/* ============================================
+   HERO SECTION - GitHub Box Style
+   ============================================ */
+.hero {
+    position: absolute;
+    left: var(--base-size-24);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 420px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--borderRadius-medium);
+    overflow: hidden;
+    box-shadow: var(--shadow-floating-medium);
+    pointer-events: auto;
+}
+
+.hero-content {
+    padding: var(--base-size-20);
+}
+
+/* Hero Header */
+.hero-header {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-16);
+    margin-bottom: var(--base-size-16);
+}
+
+.hero-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-border-default);
+    box-shadow: var(--shadow-resting-medium);
+}
+
+.hero-intro {
+    flex: 1;
+}
+
+.hero-intro .hero-badge {
+    margin-bottom: var(--base-size-4);
+}
+
+.hero-intro .hero-title {
+    margin-bottom: 0;
+}
+
+/* GitHub Label */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 20px;
+    padding: 0 7px;
+    font-size: var(--text-body-size-small);
+    font-weight: 500;
+    color: var(--color-success-fg);
+    background: var(--color-success-subtle);
+    border-radius: var(--borderRadius-full);
+    margin-bottom: var(--base-size-12);
+}
+
+.hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--color-success-fg);
+    border-radius: 50%;
+}
+
+.hero-title {
+    margin-bottom: var(--base-size-8);
+}
+
+.title-line {
+    display: block;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-fg-default);
+}
+
+.title-line.accent {
+    color: var(--color-accent-fg);
+}
+
+.hero-description {
+    font-size: var(--text-body-size-medium);
+    color: var(--color-fg-muted);
+    line-height: 1.5;
+    margin-bottom: var(--base-size-16);
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--base-size-8);
+    margin-bottom: var(--base-size-20);
+}
+
+.hero-stats {
+    display: flex;
+    gap: var(--base-size-24);
+    padding-top: var(--base-size-16);
+    border-top: 1px solid var(--color-border-muted);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: var(--text-body-size-small);
+    color: var(--color-fg-muted);
+    margin-top: 2px;
+}
+
+/* Hero Motto */
+.hero-motto {
+    padding-top: var(--base-size-16);
+    border-top: 1px solid var(--color-border-muted);
+    text-align: center;
+}
+
+.motto-text {
+    font-size: var(--text-body-size-medium);
+    font-style: italic;
+    color: var(--color-fg-muted);
+    line-height: 1.5;
+}
+
+.scroll-indicator {
+    display: none;
+}
+
+.hero.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* ============================================
+   SIDE NAVIGATION - GitHub ActionList
+   ============================================ */
+.side-nav {
+    position: fixed;
+    right: var(--base-size-16);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 220px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--borderRadius-medium);
+    box-shadow: var(--shadow-floating-medium);
+    overflow: hidden;
+}
+
+.side-nav-label {
+    padding: var(--base-size-8) var(--base-size-16);
+    font-size: var(--text-body-size-small);
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    background: var(--color-canvas-subtle);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.side-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-8);
+    width: 100%;
+    padding: var(--base-size-8) var(--base-size-16);
+    font-size: var(--text-body-size-medium);
+    font-family: inherit;
+    text-align: left;
+    color: var(--color-fg-default);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 80ms;
+}
+
+.side-nav-btn:hover {
+    background: var(--color-neutral-muted);
+}
+
+.side-nav-btn.active {
+    background: var(--color-accent-subtle);
+}
+
+.side-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: var(--color-fg-muted);
+}
+
+.side-nav-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.side-nav-text {
+    flex: 1;
+    font-weight: 400;
+}
+
+.side-nav-btn.active .side-nav-text {
+    font-weight: 600;
+}
+
+/* GitHub Counter */
+.side-nav-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: var(--text-body-size-small);
+    font-weight: 500;
+    color: var(--color-fg-default);
+    background: var(--color-neutral-muted);
+    border-radius: var(--borderRadius-full);
+}
+
+/* ============================================
+   BOTTOM BAR - GitHub Footer Style
+   ============================================ */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    padding: 0 var(--base-size-16);
+    background: var(--color-canvas-subtle);
+    border-top: 1px solid var(--color-border-muted);
+}
+
+.camera-info,
+.fps-counter {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-4);
+    font-family: var(--fontStack-monospace);
+    font-size: var(--text-body-size-small);
+}
+
+.info-label {
+    color: var(--color-fg-muted);
+}
+
+.info-value {
+    color: var(--color-fg-subtle);
+}
+
+.controls-hint {
+    display: flex;
+    gap: var(--base-size-16);
+}
+
+.control {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-4);
+    font-size: var(--text-body-size-small);
+    color: var(--color-fg-muted);
+}
+
+/* GitHub Keyboard Shortcut */
+kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    font-family: var(--fontStack-monospace);
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--borderRadius-small);
+    box-shadow: inset 0 -1px 0 var(--color-border-muted);
+}
+
+/* ============================================
+   PROJECTS PANEL - GitHub Box
+   ============================================ */
+.projects-panel {
+    position: fixed;
+    left: var(--base-size-16);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 380px;
+    max-height: 70vh;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--borderRadius-medium);
+    box-shadow: var(--shadow-floating-large);
+    overflow: hidden;
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+
+.projects-panel.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%) scale(0.98);
+    pointer-events: none;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 44px;
+    padding: 0 var(--base-size-16);
+    background: var(--color-canvas-subtle);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.panel-header h3 {
+    font-size: var(--text-body-size-medium);
+    font-weight: 600;
+}
+
+.btn-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    color: var(--color-fg-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--borderRadius-small);
+    cursor: pointer;
+}
+
+.btn-close:hover {
+    color: var(--color-fg-default);
+    background: var(--color-neutral-muted);
+}
+
+.btn-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* GitHub UnderlineNav */
+.panel-filters {
+    display: flex;
+    gap: 0;
+    padding: 0 var(--base-size-16);
+    background: var(--color-canvas-subtle);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.filter-btn {
+    padding: var(--base-size-8) var(--base-size-12);
+    font-size: var(--text-body-size-medium);
+    font-family: inherit;
+    font-weight: 400;
+    color: var(--color-fg-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 80ms, border-color 80ms;
+    margin-bottom: -1px;
+}
+
+.filter-btn:hover {
+    color: var(--color-fg-default);
+}
+
+.filter-btn.active {
+    color: var(--color-fg-default);
+    font-weight: 600;
+    border-bottom-color: #fd8c73;
+}
+
+.panel-content {
+    padding: 0;
+    max-height: calc(70vh - 88px);
+    overflow-y: auto;
+}
+
+/* Scrollbar */
+.panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background: var(--color-border-muted);
+    border-radius: 4px;
+}
+
+/* GitHub Issue/PR Row Style */
+.project-card {
+    display: block;
+    padding: var(--base-size-12) var(--base-size-16);
+    border-bottom: 1px solid var(--color-border-muted);
+    cursor: pointer;
+    transition: background 80ms;
+}
+
+.project-card:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.project-card:last-child {
+    border-bottom: none;
+}
+
+.project-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--base-size-8);
+    margin-bottom: var(--base-size-4);
+}
+
+.project-card-title {
+    flex: 1;
+    font-size: var(--text-body-size-medium);
+    font-weight: 600;
+    color: var(--color-fg-default);
+    line-height: 1.4;
+}
+
+.project-card-title:hover {
+    color: var(--color-accent-fg);
+}
+
+/* GitHub Label */
+.project-card-category {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    font-size: var(--text-body-size-small);
+    font-weight: 500;
+    color: var(--color-attention-fg);
+    background: var(--color-attention-subtle);
+    border-radius: var(--borderRadius-full);
+    white-space: nowrap;
+}
+
+.project-card-description {
+    font-size: var(--text-body-size-small);
+    color: var(--color-fg-muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ============================================
+   MODAL - GitHub Dialog
+   ============================================ */
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    transition: opacity 0.15s, visibility 0.15s;
+}
+
+.modal.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 35, 40, 0.5);
+}
+
+.modal-container {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+}
+
+.modal-content {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--borderRadius-large);
+    box-shadow: var(--shadow-floating-large);
+    overflow: hidden;
+}
+
+.modal-close {
+    position: absolute;
+    top: var(--base-size-12);
+    right: var(--base-size-12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--color-fg-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--borderRadius-small);
+    cursor: pointer;
+    z-index: 1;
+}
+
+.modal-close:hover {
+    color: var(--color-fg-default);
+    background: var(--color-neutral-muted);
+}
+
+.modal-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+.modal-header {
+    padding: var(--base-size-16);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.modal-category {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    font-size: var(--text-body-size-small);
+    font-weight: 500;
+    color: var(--color-attention-fg);
+    background: var(--color-attention-subtle);
+    border-radius: var(--borderRadius-full);
+    margin-bottom: var(--base-size-8);
+}
+
+.modal-title {
+    font-size: var(--text-title-size-medium);
+    font-weight: 600;
+    color: var(--color-fg-default);
+    line-height: 1.25;
+    padding-right: var(--base-size-32);
+}
+
+.modal-body {
+    padding: var(--base-size-16);
+}
+
+.modal-description {
+    font-size: var(--text-body-size-medium);
+    color: var(--color-fg-muted);
+    line-height: 1.6;
+    margin-bottom: var(--base-size-16);
+}
+
+.modal-section {
+    margin-bottom: var(--base-size-16);
+}
+
+.modal-section:last-child {
+    margin-bottom: 0;
+}
+
+.modal-section h4 {
+    font-size: var(--text-body-size-small);
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: var(--base-size-8);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* GitHub Topic Tags */
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--base-size-4);
+}
+
+.tech-tags span {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    font-size: var(--text-body-size-small);
+    font-weight: 500;
+    color: var(--color-accent-fg);
+    background: var(--color-accent-subtle);
+    border-radius: var(--borderRadius-full);
+}
+
+.tech-tags span:hover {
+    background: #c8e1ff;
+}
+
+.features-list {
+    list-style: none;
+}
+
+.features-list li {
+    position: relative;
+    padding-left: var(--base-size-20);
+    margin-bottom: var(--base-size-4);
+    font-size: var(--text-body-size-medium);
+    color: var(--color-fg-muted);
+}
+
+.features-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-success-fg);
+    font-weight: 600;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--base-size-8);
+    padding: var(--base-size-16);
+    background: var(--color-canvas-subtle);
+    border-top: 1px solid var(--color-border-muted);
+}
+
+/* ============================================
+   TOOLTIP - GitHub Tooltip
+   ============================================ */
+.tooltip {
+    position: fixed;
+    max-width: 250px;
+    padding: 6px 8px;
+    font-size: var(--text-body-size-small);
+    color: #ffffff;
+    background: var(--color-fg-default);
+    border-radius: var(--borderRadius-small);
+    pointer-events: none;
+    z-index: 999;
+    box-shadow: var(--shadow-floating-small);
+}
+
+.tooltip.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .hero {
+        left: var(--base-size-16);
+        width: 360px;
+    }
+
+    .side-nav {
+        width: auto;
+        right: var(--base-size-8);
+    }
+
+    .side-nav-text,
+    .side-nav-count,
+    .side-nav-label {
+        display: none;
+    }
+
+    .side-nav-btn {
+        padding: var(--base-size-8);
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   INFO PANELS (Overview, Skills, Contact)
+   ============================================ */
+.info-panel {
+    position: fixed;
+    left: var(--base-size-16);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 400px;
+    max-height: 75vh;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--borderRadius-medium);
+    box-shadow: var(--shadow-floating-large);
+    overflow: hidden;
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+
+.info-panel.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%) scale(0.98);
+    pointer-events: none;
+}
+
+.info-panel .panel-content {
+    padding: var(--base-size-16);
+    max-height: calc(75vh - 44px);
+    overflow-y: auto;
+}
+
+/* Overview Panel */
+.overview-intro {
+    margin-bottom: var(--base-size-20);
+}
+
+.overview-intro h4 {
+    font-size: var(--text-body-size-medium);
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: var(--base-size-8);
+}
+
+.overview-intro p {
+    font-size: var(--text-body-size-medium);
+    color: var(--color-fg-muted);
+    line-height: 1.6;
+}
+
+.overview-section {
+    margin-bottom: var(--base-size-20);
+}
+
+.overview-section:last-child {
+    margin-bottom: 0;
+}
+
+.overview-section h4 {
+    font-size: var(--text-body-size-small);
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--base-size-12);
+    padding-bottom: var(--base-size-8);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+/* Timeline */
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-size-12);
+}
+
+.timeline-item {
+    display: flex;
+    flex-direction: column;
+    padding-left: var(--base-size-16);
+    border-left: 2px solid var(--color-border-muted);
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 4px;
+    width: 8px;
+    height: 8px;
+    background: var(--color-success-emphasis);
+    border-radius: 50%;
+}
+
+.timeline-date {
+    font-size: var(--text-body-size-small);
+    font-weight: 500;
+    color: var(--color-fg-muted);
+    font-family: var(--fontStack-monospace);
+}
+
+.timeline-title {
+    font-size: var(--text-body-size-medium);
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.timeline-company {
+    font-size: var(--text-body-size-small);
+    color: var(--color-accent-fg);
+}
+
+/* Education */
+.education-item {
+    display: flex;
+    flex-direction: column;
+    padding: var(--base-size-12);
+    background: var(--color-canvas-subtle);
+    border-radius: var(--borderRadius-medium);
+    margin-bottom: var(--base-size-8);
+}
+
+.education-item:last-child {
+    margin-bottom: 0;
+}
+
+.edu-degree {
+    font-size: var(--text-body-size-medium);
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.edu-school {
+    font-size: var(--text-body-size-small);
+    color: var(--color-accent-fg);
+}
+
+.edu-year {
+    font-size: var(--text-body-size-small);
+    color: var(--color-fg-muted);
+    font-family: var(--fontStack-monospace);
+}
+
+/* Skills Panel */
+.skill-category {
+    margin-bottom: var(--base-size-16);
+}
+
+.skill-category:last-child {
+    margin-bottom: 0;
+}
+
+.skill-category h4 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--text-body-size-small);
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: var(--base-size-8);
+}
+
+.skill-years {
+    font-weight: 400;
+    color: var(--color-fg-muted);
+}
+
+.skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--base-size-4);
+}
+
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 10px;
+    font-size: var(--text-body-size-small);
+    font-weight: 500;
+    color: var(--color-fg-default);
+    background: var(--color-neutral-muted);
+    border-radius: var(--borderRadius-full);
+    transition: background 80ms;
+}
+
+.skill-tag img {
+    width: 14px;
+    height: 14px;
+    opacity: 0.8;
+}
+
+.skill-tag:hover {
+    background: var(--color-border-muted);
+}
+
+.skill-tag.primary {
+    color: var(--color-accent-fg);
+    background: var(--color-accent-subtle);
+}
+
+.skill-tag.primary:hover {
+    background: #c8e1ff;
+}
+
+.skill-tag.accent {
+    color: var(--color-attention-fg);
+    background: var(--color-attention-subtle);
+}
+
+.skill-tag.accent:hover {
+    background: #ffefc8;
+}
+
+/* Contact Panel */
+.contact-intro {
+    margin-bottom: var(--base-size-20);
+}
+
+.contact-intro p {
+    font-size: var(--text-body-size-medium);
+    color: var(--color-fg-muted);
+    line-height: 1.5;
+}
+
+.contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-size-8);
+    margin-bottom: var(--base-size-20);
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-12);
+    padding: var(--base-size-12);
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--borderRadius-medium);
+    text-decoration: none;
+    transition: background 80ms, border-color 80ms;
+}
+
+.contact-item:hover {
+    background: var(--color-canvas-inset);
+    border-color: var(--color-border-default);
+}
+
+.contact-item svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-fg-muted);
+    flex-shrink: 0;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-label {
+    font-size: var(--text-body-size-small);
+    color: var(--color-fg-muted);
+}
+
+.contact-value {
+    font-size: var(--text-body-size-medium);
+    font-weight: 500;
+    color: var(--color-fg-default);
+}
+
+.contact-location {
+    display: flex;
+    align-items: center;
+    gap: var(--base-size-8);
+    font-size: var(--text-body-size-small);
+    color: var(--color-fg-muted);
+}
+
+.contact-location svg {
+    width: 16px;
+    height: 16px;
+}
+
+@media (max-width: 768px) {
+    .top-bar {
+        height: 44px;
+        padding: 0 var(--base-size-8);
+    }
+
+    .top-nav,
+    .logo-text {
+        display: none;
+    }
+
+    .hero {
+        position: fixed;
+        left: var(--base-size-8);
+        right: var(--base-size-8);
+        bottom: var(--base-size-48);
+        top: auto;
+        transform: none;
+        width: auto;
+    }
+
+    .side-nav {
+        position: fixed;
+        bottom: var(--base-size-48);
+        top: auto;
+        transform: none;
+        right: var(--base-size-8);
+        flex-direction: row;
+        border-radius: var(--borderRadius-medium);
+    }
+
+    .projects-panel {
+        left: var(--base-size-8);
+        right: var(--base-size-8);
+        width: auto;
+    }
+
+    .bottom-bar {
+        height: 36px;
+    }
+
+    .controls-hint {
+        display: none;
+    }
+}
