@@ -1591,25 +1591,22 @@ function setupEventListeners() {
             // Open the correct panel
             switch(section) {
                 case 'home':
+                    closeAllPanels(true); // Keep hero visible
                     document.getElementById('hero-section')?.classList.remove('hidden');
                     navigateToSection('home');
                     controls.autoRotate = true;
                     break;
                 case 'overview':
-                    document.getElementById('overview-panel')?.classList.remove('hidden');
-                    document.getElementById('hero-section')?.classList.add('hidden');
+                    openPanel('overview-panel');
                     break;
                 case 'projects':
-                    document.getElementById('projects-panel')?.classList.remove('hidden');
-                    document.getElementById('hero-section')?.classList.add('hidden');
+                    openPanel('projects-panel');
                     break;
                 case 'skills':
-                    document.getElementById('skills-panel')?.classList.remove('hidden');
-                    document.getElementById('hero-section')?.classList.add('hidden');
+                    openPanel('skills-panel');
                     break;
                 case 'contact':
-                    document.getElementById('contact-panel')?.classList.remove('hidden');
-                    document.getElementById('hero-section')?.classList.add('hidden');
+                    openPanel('contact-panel');
                     break;
             }
         });
@@ -1630,20 +1627,20 @@ function setupEventListeners() {
     });
 
     document.getElementById('view-projects-btn')?.addEventListener('click', () => {
-        closeAllPanels();
-        document.getElementById('projects-panel').classList.remove('hidden');
-        document.getElementById('hero-section').classList.add('hidden');
+        openPanel('projects-panel');
     });
 
     // Panel close buttons
     document.getElementById('close-panel')?.addEventListener('click', () => {
-        document.getElementById('projects-panel').classList.add('hidden');
+        closeAllPanels();
+        document.getElementById('hero-section')?.classList.remove('hidden');
     });
 
     // Close buttons for all info panels
     document.querySelectorAll('.panel-close-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            btn.closest('.info-panel')?.classList.add('hidden');
+            closeAllPanels();
+            document.getElementById('hero-section')?.classList.remove('hidden');
         });
     });
 
@@ -1674,17 +1671,178 @@ function setupEventListeners() {
         if (e.key === 'Escape') {
             closeModal();
             closeAllPanels();
+            closeMobileMenu();
         }
         if (e.key === 'ArrowLeft') showPrevProject();
         if (e.key === 'ArrowRight') showNextProject();
     });
+
+    // Mobile Menu
+    setupMobileMenu();
+
+    // Touch Controls
+    setupTouchControls();
 }
 
-function closeAllPanels() {
+function closeAllPanels(keepHero = false) {
     document.getElementById('overview-panel')?.classList.add('hidden');
     document.getElementById('projects-panel')?.classList.add('hidden');
     document.getElementById('skills-panel')?.classList.add('hidden');
     document.getElementById('contact-panel')?.classList.add('hidden');
+    if (!keepHero) {
+        document.getElementById('hero-section')?.classList.add('hidden');
+    }
+    // Remove panel-open class from body
+    document.body.classList.remove('panel-open');
+}
+
+function openPanel(panelId) {
+    closeAllPanels();
+    document.getElementById(panelId)?.classList.remove('hidden');
+    // Add panel-open class to body for mobile styling
+    document.body.classList.add('panel-open');
+}
+
+// ============================================
+// MOBILE MENU
+// ============================================
+function setupMobileMenu() {
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (!menuBtn || !mobileMenu) return;
+
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('open');
+        // Update button icon
+        const isOpen = mobileMenu.classList.contains('open');
+        menuBtn.innerHTML = isOpen
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+               </svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+               </svg>`;
+    });
+
+    // Mobile menu links
+    mobileMenu.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = link.dataset.section;
+
+            // Update active state
+            mobileMenu.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.top-nav .nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            // Also update desktop nav
+            const desktopLink = document.querySelector(`.top-nav .nav-link[data-section="${section}"]`);
+            if (desktopLink) desktopLink.classList.add('active');
+
+            // Close mobile menu
+            closeMobileMenu();
+
+            // Close all panels first
+            closeAllPanels();
+
+            // Open the correct panel
+            switch(section) {
+                case 'home':
+                    closeAllPanels(true); // Keep hero visible
+                    document.getElementById('hero-section')?.classList.remove('hidden');
+                    navigateToSection('home');
+                    controls.autoRotate = true;
+                    break;
+                case 'overview':
+                    openPanel('overview-panel');
+                    break;
+                case 'projects':
+                    openPanel('projects-panel');
+                    break;
+                case 'skills':
+                    openPanel('skills-panel');
+                    break;
+                case 'contact':
+                    openPanel('contact-panel');
+                    break;
+            }
+        });
+    });
+}
+
+function closeMobileMenu() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuBtn = document.getElementById('mobile-menu-btn');
+
+    if (mobileMenu) {
+        mobileMenu.classList.remove('open');
+    }
+    if (menuBtn) {
+        menuBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+           </svg>`;
+    }
+}
+
+// ============================================
+// TOUCH CONTROLS
+// ============================================
+function setupTouchControls() {
+    // Zoom In
+    const zoomInBtn = document.getElementById('touch-zoom-in');
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction);
+            camera.position.addScaledVector(direction, 10);
+        });
+    }
+
+    // Zoom Out
+    const zoomOutBtn = document.getElementById('touch-zoom-out');
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction);
+            camera.position.addScaledVector(direction, -10);
+        });
+    }
+
+    // Reset View
+    const resetBtn = document.getElementById('touch-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            navigateToSection('home');
+            document.getElementById('hero-section')?.classList.remove('hidden');
+            controls.autoRotate = true;
+        });
+    }
+
+    // Toggle Auto Rotate
+    const rotateBtn = document.getElementById('touch-rotate');
+    if (rotateBtn) {
+        rotateBtn.addEventListener('click', () => {
+            controls.autoRotate = !controls.autoRotate;
+            rotateBtn.style.background = controls.autoRotate
+                ? 'var(--color-accent-subtle)'
+                : 'var(--color-canvas-default)';
+        });
+    }
+
+    // Enable touch-friendly orbit controls
+    if (controls) {
+        controls.touches = {
+            ONE: THREE.TOUCH.ROTATE,
+            TWO: THREE.TOUCH.DOLLY_PAN
+        };
+        controls.enablePan = true;
+    }
 }
 
 function setActiveNavButton(activeBtn) {

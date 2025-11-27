@@ -574,8 +574,24 @@ body {
 .hero-description {
     font-size: var(--text-body-size-medium);
     color: var(--color-fg-muted);
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: var(--base-size-16);
+}
+
+/* Highlighted keywords in description */
+.hero-description .highlight {
+    color: var(--color-accent-fg);
+    font-weight: 500;
+}
+
+.hero-description .highlight-success {
+    color: var(--color-success-fg);
+    font-weight: 500;
+}
+
+.hero-description .highlight-attention {
+    color: var(--color-attention-fg);
+    font-weight: 500;
 }
 
 .hero-actions {
@@ -850,6 +866,21 @@ kbd {
     padding: 0 var(--base-size-16);
     background: var(--color-canvas-subtle);
     border-bottom: 1px solid var(--color-border-muted);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox - hide scrollbar */
+    -ms-overflow-style: none; /* IE/Edge - hide scrollbar */
+}
+
+.panel-filters::-webkit-scrollbar {
+    display: none; /* Chrome/Safari - hide scrollbar */
+}
+
+/* Fade edges to indicate scrollable content */
+.panel-filters {
+    mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
 }
 
 .filter-btn {
@@ -864,6 +895,8 @@ kbd {
     cursor: pointer;
     transition: color 80ms, border-color 80ms;
     margin-bottom: -1px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .filter-btn:hover {
@@ -1461,6 +1494,15 @@ kbd {
     height: 16px;
 }
 
+/* Hide hero, side-nav and touch controls when panels are open on mobile */
+@media (max-width: 768px) {
+    body.panel-open .hero,
+    body.panel-open .side-nav,
+    body.panel-open .touch-controls {
+        display: none !important;
+    }
+}
+
 @media (max-width: 768px) {
     .top-bar {
         height: 44px;
@@ -1472,37 +1514,310 @@ kbd {
         display: none;
     }
 
+    /* Mobile menu button */
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+
     .hero {
         position: fixed;
         left: var(--base-size-8);
         right: var(--base-size-8);
-        bottom: var(--base-size-48);
+        bottom: 100px;
         top: auto;
         transform: none;
         width: auto;
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    .hero-content {
+        padding: var(--base-size-12);
+    }
+
+    .hero-header {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--base-size-12);
+        margin-bottom: var(--base-size-8);
+    }
+
+    .hero-avatar img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .hero-intro {
+        flex: 1;
+    }
+
+    .hero-intro .hero-badge {
+        margin-bottom: 2px;
+        font-size: 10px;
+        height: 16px;
+        padding: 0 5px;
+    }
+
+    .hero-intro .hero-badge::before {
+        width: 4px;
+        height: 4px;
+    }
+
+    .title-line {
+        font-size: 16px;
+        display: inline;
+    }
+
+    .title-line.accent {
+        margin-left: 4px;
+    }
+
+    .hero-description {
+        font-size: 12px;
+        margin-bottom: var(--base-size-8);
+        line-height: 1.4;
+    }
+
+    .hero-actions {
+        flex-wrap: nowrap;
+        gap: var(--base-size-4);
+    }
+
+    .hero-actions .btn-large {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .hero-actions .btn-large svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .hero-motto {
+        display: none;
     }
 
     .side-nav {
         position: fixed;
-        bottom: var(--base-size-48);
+        bottom: 52px;
         top: auto;
-        transform: none;
-        right: var(--base-size-8);
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
         flex-direction: row;
         border-radius: var(--borderRadius-medium);
-    }
-
-    .projects-panel {
-        left: var(--base-size-8);
-        right: var(--base-size-8);
         width: auto;
     }
 
+    .side-nav-label {
+        display: none;
+    }
+
+    .side-nav-text,
+    .side-nav-count {
+        display: none;
+    }
+
+    .side-nav-btn {
+        padding: var(--base-size-8);
+        justify-content: center;
+    }
+
+    .projects-panel,
+    .info-panel {
+        position: fixed;
+        left: var(--base-size-8);
+        right: var(--base-size-8);
+        top: 52px;
+        bottom: 100px;
+        transform: none;
+        width: auto;
+        max-height: none;
+    }
+
+    .projects-panel .panel-content,
+    .info-panel .panel-content {
+        max-height: calc(100% - 88px);
+    }
+
     .bottom-bar {
-        height: 36px;
+        height: 44px;
     }
 
     .controls-hint {
         display: none;
+    }
+
+    .camera-info {
+        display: none;
+    }
+
+    /* Modal mobile */
+    .modal-container {
+        width: 95%;
+        max-width: none;
+        margin: var(--base-size-8);
+    }
+
+    .modal-content {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        flex-wrap: wrap;
+        gap: var(--base-size-8);
+    }
+
+    .modal-footer button {
+        flex: 1;
+        min-width: 80px;
+    }
+}
+
+/* ============================================
+   MOBILE MENU
+   ============================================ */
+.mobile-menu-btn {
+    display: none;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 44px;
+    left: 0;
+    right: 0;
+    background: var(--color-canvas-default);
+    border-bottom: 1px solid var(--color-border-muted);
+    padding: var(--base-size-8);
+    z-index: var(--z-dropdown);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.mobile-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-size-4);
+}
+
+.mobile-menu-links .nav-link {
+    padding: var(--base-size-12);
+    border-radius: var(--borderRadius-medium);
+}
+
+/* ============================================
+   TOUCH CONTROLS OVERLAY
+   ============================================ */
+.touch-controls {
+    position: fixed;
+    bottom: 100px;
+    right: var(--base-size-8);
+    display: none;
+    flex-direction: column;
+    gap: var(--base-size-8);
+    z-index: var(--z-dropdown);
+}
+
+@media (max-width: 768px) {
+    .touch-controls {
+        display: flex;
+    }
+}
+
+.touch-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 50%;
+    color: var(--color-fg-default);
+    cursor: pointer;
+    box-shadow: var(--shadow-floating-small);
+    transition: background 80ms, transform 80ms;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn:active {
+    transform: scale(0.95);
+    background: var(--color-canvas-subtle);
+}
+
+.touch-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.touch-btn-group {
+    display: grid;
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(3, 48px);
+    gap: 4px;
+}
+
+.touch-btn-group .touch-btn {
+    border-radius: var(--borderRadius-medium);
+}
+
+.touch-btn-group .touch-btn:nth-child(1) { grid-column: 2; grid-row: 1; }
+.touch-btn-group .touch-btn:nth-child(2) { grid-column: 1; grid-row: 2; }
+.touch-btn-group .touch-btn:nth-child(3) { grid-column: 3; grid-row: 2; }
+.touch-btn-group .touch-btn:nth-child(4) { grid-column: 2; grid-row: 3; }
+
+/* Zoom controls */
+.zoom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Small screens - extra adjustments */
+@media (max-width: 480px) {
+    .hero {
+        bottom: 110px;
+        max-height: 45vh;
+    }
+
+    .hero-content {
+        padding: var(--base-size-12);
+    }
+
+    .hero-motto {
+        display: none;
+    }
+
+    .side-nav {
+        bottom: 56px;
+    }
+
+    .touch-controls {
+        bottom: 110px;
+        right: var(--base-size-4);
+    }
+
+    .touch-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .touch-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .touch-btn-group {
+        grid-template-columns: repeat(3, 40px);
+        grid-template-rows: repeat(3, 40px);
     }
 }
