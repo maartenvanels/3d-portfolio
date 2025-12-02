@@ -1,0 +1,12 @@
+# robots.txt for Maarten van Els Portfolio
+# https://maartenvanels.com/
+
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://maartenvanels.com/sitemap.xml
+
+# Crawl-delay (optional, be friendly to servers)
+Crawl-delay: 1
