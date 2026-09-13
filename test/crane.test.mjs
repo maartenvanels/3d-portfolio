@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { Box3, Vector3, PerspectiveCamera, Matrix3 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { fitViewToBounds } from "../src/world.mjs";
+import { fitViewToBounds, sweptBounds, SLEW_ANGLE } from "../src/world.mjs";
 
 test("Crane framing retains the full jib and carrier on desktop and narrow mobile screens", () => {
   const bounds = new Box3(new Vector3(-9.2, .2, -4.8), new Vector3(11, 14.6, -1.8));
@@ -39,7 +39,8 @@ test("City-boy exports the tilted crane cabin, connected hoist and bounded geome
     for (const value of object.geometry.attributes.position.array) assert.ok(Number.isFinite(value));
   });
   assert.ok(triangles < 30_000, `${triangles} triangles exceed the crane budget`);
-  assert.ok(drawCalls <= 13, `${drawCalls} material batches exceed the crane budget`);
+  // Four shared materials now need separate carrier and upperworks batches.
+  assert.ok(drawCalls <= 17, `${drawCalls} material batches exceed the articulated crane budget`);
   const size = new Box3().setFromObject(scene).getSize(new Vector3());
   assert.ok(size.y > 35 && size.y < 37, "Export must retain metre units and Y-up orientation");
   // Inspect the actual exported roof glazing: in crane mode it must be vertical
@@ -66,12 +67,49 @@ test("City-boy exports the tilted crane cabin, connected hoist and bounded geome
   const lines = scene.getObjectByName("CityBoy_HoistLines");
   assert.ok(hook && lines, "The runtime needs both independently movable hoist parts");
   const rest = hook.position.y;
-  for (const lift of [-2, 0, 2]) {
-    hook.position.y = rest + lift;
-    lines.scale.y = 1 - lift / 11.75;
-    scene.updateMatrixWorld(true);
-    const ropeEnd = new Box3().setFromObject(lines).min.y;
-    assert.ok(Math.abs(ropeEnd - (hook.position.y + .21)) < .02,
-      "Changing cable length must keep the rope connected to the hook block");
+  const upper = scene.getObjectByName("CityBoy_Upperworks");
+  const carrier = scene.getObjectByName("CityBoy_Working");
+  assert.ok(upper && upper.parent === carrier, "Upperworks need a bearing pivot on the stationary carrier");
+  assert.equal(hook.parent, upper);
+  assert.equal(lines.parent, upper);
+  const fixedParts = carrier.children.filter(object => object.isMesh);
+  const fixedMatrices = fixedParts.map(object => object.matrixWorld.clone());
+  const pivot = upper.getWorldPosition(new Vector3());
+  assert.ok(pivot.distanceTo(new Vector3(.95, 1.72, 0)) < .001, "Slewing must use the bearing, not the mast foot");
+  const upperBounds = new Box3().setFromObject(upper);
+  const envelope = sweptBounds(upperBounds, pivot, SLEW_ANGLE);
+  const windowRest = windowBounds.getCenter(new Vector3());
+  for (const angle of [-SLEW_ANGLE, -.3, 0, .3, SLEW_ANGLE]) {
+    upper.rotation.y = angle;
+    for (const lift of [-2, 0, 2]) {
+      hook.position.y = rest + lift;
+      lines.scale.y = 1 - lift / 11.75;
+      scene.updateMatrixWorld(true);
+      const ropeEnd = new Box3().setFromObject(lines).min.y;
+      assert.ok(Math.abs(ropeEnd - (hook.getWorldPosition(new Vector3()).y + .21)) < .02,
+        "Ropes must stay attached while hoisting and slewing together");
+    }
+    fixedParts.forEach((object, i) => assert.deepEqual(object.matrixWorld, fixedMatrices[i],
+      "Carrier, wheels, outriggers and rear deck must remain stationary"));
+    assert.ok(upper.getWorldPosition(new Vector3()).distanceTo(pivot) < .0001);
+    const windowCentre = new Box3().setFromObject(roofWindow).getCenter(new Vector3());
+    const expected = windowRest.clone().sub(pivot).applyAxisAngle(new Vector3(0, 1, 0), angle).add(pivot);
+    assert.ok(windowCentre.distanceTo(expected) < .001, "Cabin must travel with the upperworks");
+    // Sample the full sweep, not just its two endpoints, for both camera shapes.
+    for (const aspect of [.55, 1.6]) {
+      const camera = new PerspectiveCamera(32, aspect, .1, 400);
+      const target = new Vector3(15, 17, 0);
+      camera.position.copy(fitViewToBounds(new Vector3(50, 40, 60), target, envelope, 32, aspect));
+      camera.lookAt(target);
+      camera.updateMatrixWorld(true);
+      for (const x of [upperBounds.min.x, upperBounds.max.x])
+        for (const y of [upperBounds.min.y, upperBounds.max.y])
+          for (const z of [upperBounds.min.z, upperBounds.max.z]) {
+            const point = new Vector3(x, y, z).sub(pivot).applyAxisAngle(new Vector3(0, 1, 0), angle).add(pivot);
+            assert.ok(envelope.clone().expandByScalar(.001).containsPoint(point), "Sweep envelope must contain the jib");
+            point.project(camera);
+            assert.ok(Math.abs(point.x) < 1 && Math.abs(point.y) < 1, "Moving jib must remain in view");
+          }
+    }
   }
 });

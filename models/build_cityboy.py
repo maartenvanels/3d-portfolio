@@ -93,15 +93,16 @@ class Builder:
         faces += [(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)]
         self.mesh(material, vertices, faces)
 
-    def finish(self, name):
+    def finish(self, name, origin=(0,0,0)):
         root = bpy.data.objects.new(name, None)
         bpy.context.collection.objects.link(root)
+        root.location=(origin[0],-origin[1],origin[2])
         for key,(vertices,faces,smooth) in self.parts.items():
             mesh = bpy.data.meshes.new(name + '/' + key)
             # Bake the construction's handedness into the vertices: the cabin
             # belongs on vehicle-left (+Y with nose +X), including its carriage.
             # Reverse winding as well; no negative object scale reaches glTF.
-            mesh.from_pydata([(x,-y,z) for x,y,z in vertices], [],
+            mesh.from_pydata([(x-origin[0],-y+origin[1],z-origin[2]) for x,y,z in vertices], [],
                              [tuple(reversed(face)) for face in faces])
             bm = bmesh.new()
             bm.from_mesh(mesh)
@@ -213,10 +214,18 @@ def carrier(b,transport):
         for i,z in enumerate([.68,.85,1.02,1.19]):
             b.rod('steel',(-4.879,y,z),(-4.889,y,z),.069,12)
             b.rod('red' if i==2 else 'light',(-4.89,y,z),(-4.895,y,z),.048,12)
-    # The slew bearing sits behind the driving cabin, under the upper frame.
-    # The mast foot is carried forward by this frame; it is not the slew axis.
+    # These handrails belong to the stationary carrier deck.
+    for y in [-.72,.72]:
+        b.rod('paint',(-4.3,y,1.57),(-4.3,y,2.53),.025,6)
+        b.rod('paint',(-4.3,y,2.53),(-3.93,y,2.53),.025,6)
+        b.rod('paint',(-3.93,y,2.53),(-3.93,y,1.57),.025,6)
+    # Lower bearing races stay on the carrier; the top race turns with the crane.
     b.rod('dark',(SLEW_X,0,1.51),(SLEW_X,0,1.67),.94,32)
     b.rod('steel',(SLEW_X,0,1.67),(SLEW_X,0,1.72),.89,32)
+
+def upper_frame(b,transport):
+    # The slew bearing sits behind the driving cabin, under the upper frame.
+    # The mast foot is carried forward by this frame; it is not the slew axis.
     b.rod('paint',(SLEW_X,0,1.72),(SLEW_X,0,1.78),.86,32)
     # The frame ends at the counterweight cradle, not halfway across the deck.
     frame_outline=[(-2.29,1.78),(-2.06,1.72),(3.97,1.72),(3.97,1.96),
@@ -264,11 +273,6 @@ def carrier(b,transport):
             b.rod('paint',(x,sign*1.07,1.52),(x,sign*1.07,3.38),.025,8)
         for z in [1.63+i*.255 for i in range(7)]:
             b.rod('steel',(1.29,sign*1.085,z),(1.58,sign*1.085,z),.023,6)
-    # Rear access deck and handrails, with no loose plate stack carried here.
-    for y in [-.72,.72]:
-        b.rod('paint',(-4.3,y,1.57),(-4.3,y,2.53),.025,6)
-        b.rod('paint',(-4.3,y,2.53),(-3.93,y,2.53),.025,6)
-        b.rod('paint',(-3.93,y,2.53),(-3.93,y,1.57),.025,6)
 
 def cabin(b,origin,mode='driving'):
     if mode not in ('driving','crane'):
@@ -384,7 +388,8 @@ def mast_section(b,px,z0,z1,w,d):
     b.rod('steel',(px+.11,-d/2-.07,z0),(px+.11,-d/2-.07,z1),.025,8)
 
 def working():
-    b=Builder();carrier(b,False)
+    base=Builder();carrier(base,False)
+    b=Builder();upper_frame(b,False)
     px=MAST_X
     b.box('paint',(px,0,1.97),(1.26,1.06,.4),.05)
     for z0,z1,w,d in [(2.15,12.5,.98,.88),(12.4,22.3,.77,.7),(22.2,31.6,.58,.56)]:
@@ -455,13 +460,17 @@ def working():
     hook.rod('steel',(hx,-.36,.03),(hx,.36,.03),.12,16)
     pts=[(hx,0,-.26),(hx,0,-.46),(hx+.15,0,-.67),(hx+.35,0,-.65),(hx+.43,0,-.45)]
     for a,c in zip(pts,pts[1:]):hook.rod('dark',a,c,.07,10)
-    root=b.finish('CityBoy_Working')
-    hoist_lines=lines.finish('CityBoy_HoistLines');hoist_lines.parent=root;hoist_lines.location.z=31.8
-    hoist_hook=hook.finish('CityBoy_Hook');hoist_hook.parent=root;hoist_hook.location.z=19.84
+    root=base.finish('CityBoy_Working')
+    upper=b.finish('CityBoy_Upperworks',origin=(SLEW_X,0,1.72));upper.parent=root
+    # Hoist origins remain local to the slewing assembly, so ropes and load follow.
+    hoist_lines=lines.finish('CityBoy_HoistLines');hoist_lines.parent=upper
+    hoist_lines.location=(-SLEW_X,0,31.8-1.72)
+    hoist_hook=hook.finish('CityBoy_Hook');hoist_hook.parent=upper
+    hoist_hook.location=(-SLEW_X,0,19.84-1.72)
     return root
 
 def transport():
-    b=Builder();carrier(b,True)
+    b=Builder();carrier(b,True);upper_frame(b,True)
     cabin(b,(3.94,-.65,1.57),mode='driving')
     # Nested mast beside the cab; rear mechanisms remain visibly open.
     b.box('paint',(-.18,.55,2.89),(10.55,.67,.57),.035)

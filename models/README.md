@@ -44,6 +44,10 @@ The bearing is placed behind the driving cabin, underneath an upper frame carryi
 
 ## Web export
 
-Current working export: 1,132,040 bytes, 29,554 triangles and 13 meshes, using 9 materials. The 1.2 MB / 30,000 triangle / 13 mesh limits remain unchanged.
+Current working export: 1,134,984 bytes, 29,554 triangles and 17 meshes, using 9 materials. The file and triangle limits remain 1.2 MB and 30,000 triangles. Independent slewing adds four material batches shared by the carrier and upperworks; the articulated model's draw budget is 17 meshes.
 
-The static structure is merged by material. The hook block and four hoist ropes have separate origins so the rope length follows the hook during opt-in animation. There are no texture maps or remote decoder dependencies. Automated checks enforce a 1.2 MB file budget, fewer than 30,000 triangles and at most 13 mesh draws, verify the hoist connection at both travel limits, and inspect the exported roof glazing to confirm that it is on vehicle-left, vertical and facing forward in crane mode. The roof window has its own material batch so that this orientation can be checked directly on the exported geometry.
+Geometry is merged by material within each moving assembly. `CityBoy_Working` contains the stationary carrier, wheels, outriggers, deck and lower bearing races. Its child `CityBoy_Upperworks` pivots at the bearing centre (Blender coordinates 0.95, 0, 1.72 m) and carries the upper frame, ballast, mast, cabin, jib and hoist. The hook block and four hoist ropes have separate origins relative to this assembly, so the rope length follows the hook while slewing. The transport illustration retains its original pose.
+
+Opt-in machine movement gently slews the upperworks between -35 and +35 degrees, with a period of about 39 seconds. Pausing preserves the current angle and resumes from there. The camera fits the full swept envelope, including intermediate extrema; the Cabin camera rotates with the cabin. The existing 30 FPS cap and idle/offscreen/hidden-tab pauses remain in effect. There are no texture maps or remote decoder dependencies.
+
+Automated checks enforce a 1.2 MB file budget, fewer than 30,000 triangles and at most 17 mesh draws. They verify a stationary carrier and bearing pivot, the moving cabin and hoist connection throughout the slew range, and desktop/mobile camera coverage. The exported roof glazing is checked for its vehicle-left position and vertical, forward-facing crane orientation. Its own material batch makes these checks possible on the exported geometry.

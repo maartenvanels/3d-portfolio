@@ -3,6 +3,31 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
+export const SLEW_ANGLE = THREE.MathUtils.degToRad(35);
+
+// Exact horizontal envelope of a box rotating about a vertical bearing. Include
+// interior extrema as well as endpoints so the jib stays visible between them.
+export function sweptBounds(bounds, pivot, angle) {
+  const result = new THREE.Box3();
+  for (const x of [bounds.min.x, bounds.max.x])
+    for (const z of [bounds.min.z, bounds.max.z]) {
+      const dx = x - pivot.x, dz = z - pivot.z;
+      const angles = [-angle, angle];
+      for (const peak of [Math.atan2(dz, dx), Math.atan2(-dx, dz)])
+        for (let k = -1; k <= 1; k++) {
+          const value = peak + k * Math.PI;
+          if (value > -angle && value < angle) angles.push(value);
+        }
+      for (const value of angles)
+        for (const y of [bounds.min.y, bounds.max.y])
+          result.expandByPoint(new THREE.Vector3(
+            pivot.x + dx * Math.cos(value) + dz * Math.sin(value), y,
+            pivot.z - dx * Math.sin(value) + dz * Math.cos(value),
+          ));
+    }
+  return result;
+}
+
 // Fit every corner of the selected subject, including the long jib on narrow screens.
 export function fitViewToBounds(position, target, bounds, fov, aspect) {
   const back = position.clone().sub(target).normalize();
@@ -197,7 +222,7 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     box(palette.concrete, [w, 0.07, d], [x, 0.18, z]);
   }
   // Original Blender model: three-axle carrier, closed telescopic mast and lifting cab.
-  // One shared mesh per material keeps the detailed model cheap to render.
+  // Materials are batched within the carrier and the independently slewing upperworks.
   crane.scale.setScalar(0.4);
   crane.position.set(-6.5, 0.18, -3.3);
   crane.traverse((obj) => {
@@ -212,6 +237,9 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     }
   });
   worldRoot.add(crane);
+  const upperworks = crane.getObjectByName("CityBoy_Upperworks");
+  const slewPivot = upperworks.getWorldPosition(new THREE.Vector3());
+  const vertical = new THREE.Vector3(0, 1, 0);
   const hoistLines = crane.getObjectByName("CityBoy_HoistLines");
   const hoistHook = crane.getObjectByName("CityBoy_Hook");
   const hookRestHeight = hoistHook.position.y;
@@ -485,6 +513,8 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     connected: { position: [15, 10, 21], target: [5, 1.0, 5.8] },
   };
   const craneBounds = new THREE.Box3().setFromObject(crane);
+  const craneSweepBounds = sweptBounds(new THREE.Box3().setFromObject(upperworks), slewPivot, SLEW_ANGLE)
+    .union(craneBounds);
   const viewBounds = {
     // Separate the low workshop and tall crane so empty upper corners do not force
     // an unnecessarily distant overview camera.
@@ -530,6 +560,18 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     }
     if (motion) {
       phase += dt;
+      const angle = Math.sin(phase * 0.16) * SLEW_ANGLE;
+      const delta = angle - upperworks.rotation.y;
+      upperworks.rotation.y = angle;
+      // In the close-up view travel with the cabin, including any view transition.
+      if (activeView === "cabin") {
+        turnAroundBearing(camera.position, delta);
+        turnAroundBearing(controls.target, delta);
+        if (transition)
+          for (const point of [transition.from, transition.to, transition.fromTarget, transition.toTarget])
+            turnAroundBearing(point, delta);
+        controls.update();
+      }
       const lift = Math.sin(phase * 0.7) * 2;
       hoistHook.position.y = hookRestHeight + lift;
       hoistLines.scale.y = 1 - lift / 11.75;
@@ -544,7 +586,11 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     canvas.dataset.frames = String(renderer.info.render.frame);
     canvas.dataset.drawCalls = String(renderer.info.render.calls);
     canvas.dataset.triangles = String(renderer.info.render.triangles);
+    canvas.dataset.slewAngle = THREE.MathUtils.radToDeg(upperworks.rotation.y).toFixed(2);
     if (motion || transition) invalidate();
+  }
+  function turnAroundBearing(point, angle) {
+    return point.sub(slewPivot).applyAxisAngle(vertical, angle).add(slewPivot);
   }
   function setView(zone, immediate = false) {
     activeView = zone;
@@ -552,8 +598,14 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     const view = views[zone] || views.overview;
     const target = new THREE.Vector3(...view.target),
       position = new THREE.Vector3(...view.position);
-    for (const bounds of viewBounds[zone] || [])
+    for (let bounds of viewBounds[zone] || []) {
+      if (bounds === craneBounds && (motion || upperworks.rotation.y !== 0)) bounds = craneSweepBounds;
       fitViewToBounds(position, target, bounds, camera.fov, camera.aspect);
+    }
+    if (zone === "cabin") {
+      turnAroundBearing(position, upperworks.rotation.y);
+      turnAroundBearing(target, upperworks.rotation.y);
+    }
     if (immediate || reduced.matches) {
       camera.position.copy(position);
       controls.target.copy(target);
@@ -663,6 +715,7 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     setMotion(enabled) {
       motion = enabled;
       last = performance.now();
+      if (enabled && activeView && activeView !== "cabin") setView(activeView);
       invalidate();
     },
     setNight(enabled) {
