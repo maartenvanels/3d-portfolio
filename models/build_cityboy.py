@@ -221,10 +221,7 @@ def carrier(b,transport):
             b.rod('paint',(x,sign*1.07,1.52),(x,sign*1.07,3.38),.025,8)
         for z in [1.63+i*.255 for i in range(7)]:
             b.rod('steel',(1.29,sign*1.085,z),(1.58,sign*1.085,z),.023,6)
-    # Low carrier-level ballast; avoid the invented tall stack of crates.
-    b.box('dark',(-2.7,0,2.14),(2.15,1.91,.68),.05)
-    for z in [1.9,2.12,2.34]:
-        b.box('paint',(-2.7,0,z),(2.17,1.96,.026))
+    # Rear access deck and handrails, with no loose plate stack carried here.
     for y in [-.72,.72]:
         b.rod('paint',(-4.3,y,1.57),(-4.3,y,2.53),.025,6)
         b.rod('paint',(-4.3,y,2.53),(-3.93,y,2.53),.025,6)
@@ -386,13 +383,13 @@ def working():
                 ((px,0,35.83),(px+12.7,0,32.8)),
                 ((px+12.7,0,35.83),(px+23.2,0,32.6))]:
         b.rod('steel',a,c,.022,6)
-    # Rear-folding suspension stays return to ballast mounted on the carrier.
+    # Rear-folding suspension stays return to the machinery housing.
     b.rod('paint',(px,0,35.83),(px-3.8,0,33.7),.05,8)
     b.rod('paint',(px-3.8,0,33.7),(px,0,32.3),.05,8)
     for y in [-.26,.26]:
         b.rod('steel',(px-3.8,y,33.7),(px-3.8,y,ENGINE_TOP+.08),.022,6)
-    # Stay anchors meet the top of the machinery housing, rather than hanging
-    # above the ballast. Shoulder plates and sheaves carry the folding head.
+    # Stay anchors meet the housing roof. Shoulder plates and sheaves carry
+    # the folding head.
     for y in [-.26,.26]:
         b.box('paint',(px-3.8,y,ENGINE_TOP+.09),(.22,.09,.24),.018)
         b.rod('steel',(px-3.8,y-.08,ENGINE_TOP+.08),(px-3.8,y+.08,ENGINE_TOP+.08),.059,10)

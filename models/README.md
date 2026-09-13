@@ -36,10 +36,10 @@ Generate additional review views without altering the saved Blender scene:
 & 'C:\Program Files\Blender Foundation\Blender 5.0\blender.exe' --background models/cityboy.blend --threads 6 --python models/render_cityboy_views.py -- --views side cabin working --prefix qa/review
 ```
 
-The bearing is placed behind the driving cabin, underneath a continuous upper frame carrying the mast foot, engine cover and ballast. The housing sits closer to the cabin, with a narrow ladder recess between them. The `base` review camera shows this connection in working mode.
+The bearing is placed behind the driving cabin, underneath a continuous upper frame carrying the mast foot and engine cover. The housing sits closer to the cabin, with a narrow ladder recess between them. The rear access deck has no loose stack of outrigger plates in either pose. The `base` review camera shows this connection in working mode.
 
 ## Web export
 
-Current working export: 1,060,252 bytes, 27,862 triangles and 13 meshes, using 9 materials. The 1.2 MB / 30,000 triangle / 13 mesh limits remain unchanged.
+Current working export: 1,055,740 bytes, 27,782 triangles and 13 meshes, using 9 materials. The 1.2 MB / 30,000 triangle / 13 mesh limits remain unchanged.
 
 The static structure is merged by material. The hook block and four hoist ropes have separate origins so the rope length follows the hook during opt-in animation. There are no texture maps or remote decoder dependencies. Automated checks enforce a 1.2 MB file budget, fewer than 30,000 triangles and at most 13 mesh draws, verify the hoist connection at both travel limits, and inspect the exported roof glazing to confirm that it is vertical and faces forward in crane mode. The roof window has its own material batch so that this orientation can be checked directly on the exported geometry.
