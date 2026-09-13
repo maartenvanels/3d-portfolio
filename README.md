@@ -29,7 +29,7 @@ Professional contributions are based on the current profile/CV. Company projects
 
 ## 3D performance
 
-The scene and its local City-boy GLB load when the viewport approaches the screen. Workshop meshes are instanced by geometry and material; the crane is batched by material at export. The crane uses fewer than 30,000 triangles, at most 12 mesh draws and no texture maps. There are no remote assets or post-processing passes. Resolution is capped, with smaller shadow maps on mobile. Shadow maps are only refreshed when needed.
+The scene and its local City-boy GLB load when the viewport approaches the screen. Workshop meshes are instanced by geometry and material; the crane is batched by material at export. The crane uses fewer than 30,000 triangles, at most 13 mesh draws and no texture maps. There are no remote assets or post-processing passes. Resolution is capped, with smaller shadow maps on mobile. Shadow maps are only refreshed when needed.
 
 The renderer sleeps when the scene is idle, outside the viewport or in a hidden tab. Machine animation is opt-in. Camera transitions respect reduced motion. One finger scrolls on mobile; two fingers rotate. Every project is also available without WebGL or JavaScript.
 

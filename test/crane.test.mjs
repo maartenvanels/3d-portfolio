@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { Box3, Vector3, PerspectiveCamera } from "three";
+import { Box3, Vector3, PerspectiveCamera, Matrix3 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { fitViewToBounds } from "../src/world.mjs";
 
@@ -22,7 +22,7 @@ test("Crane framing retains the full jib and carrier on desktop and narrow mobil
   }
 });
 
-test("City-boy loads offline within its geometry budget and its hoist stays connected", async () => {
+test("City-boy exports the tilted crane cabin, connected hoist and bounded geometry", async () => {
   const bytes = await readFile(new URL("../assets/cityboy-working.glb", import.meta.url));
   assert.ok(bytes.length < 1_200_000, "Keep the lazy-loaded model below 1.2 MB");
   const json = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
@@ -39,9 +39,27 @@ test("City-boy loads offline within its geometry budget and its hoist stays conn
     for (const value of object.geometry.attributes.position.array) assert.ok(Number.isFinite(value));
   });
   assert.ok(triangles < 30_000, `${triangles} triangles exceed the crane budget`);
-  assert.ok(drawCalls <= 12, `${drawCalls} material batches exceed the crane budget`);
+  assert.ok(drawCalls <= 13, `${drawCalls} material batches exceed the crane budget`);
   const size = new Box3().setFromObject(scene).getSize(new Vector3());
   assert.ok(size.y > 35 && size.y < 37, "Export must retain metre units and Y-up orientation");
+  // Inspect the actual exported roof glazing: in crane mode it must be vertical
+  // and face the jib (+X), not remain an upward-facing driving roof (+Y).
+  let roofWindow;
+  scene.traverse((object) => {
+    if (object.isMesh && object.material.name === "Cab / roof window becomes crane windshield")
+      roofWindow = object;
+  });
+  assert.ok(roofWindow, "The shared cabin needs a roof window");
+  scene.updateMatrixWorld(true);
+  const windowSize = new Box3().setFromObject(roofWindow).getSize(new Vector3());
+  assert.ok(windowSize.x < .01 && windowSize.y > 2 && windowSize.y < 2.3,
+    "The driving roof must become a tall vertical crane windshield");
+  const normalMatrix = new Matrix3().getNormalMatrix(roofWindow.matrixWorld);
+  const normals = roofWindow.geometry.attributes.normal;
+  for (let i = 0; i < normals.count; i++) {
+    const normal = new Vector3().fromBufferAttribute(normals, i).applyMatrix3(normalMatrix).normalize();
+    assert.ok(normal.x > .99, "Roof glazing must face forward along the jib after pitching");
+  }
   const hook = scene.getObjectByName("CityBoy_Hook");
   const lines = scene.getObjectByName("CityBoy_HoistLines");
   assert.ok(hook && lines, "The runtime needs both independently movable hoist parts");

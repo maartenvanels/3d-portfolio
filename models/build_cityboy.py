@@ -34,6 +34,7 @@ MATS = {
     'edge': material('Paint / recessed joints', 'a87b19', .3, .42),
     'dark': material('Chassis / graphite', '293332', .42, .43),
     'glass': material('Cab / blue-grey laminated glazing', '244650', .38, .16),
+    'roofglass': material('Cab / roof window becomes crane windshield', '315962', .38, .16),
     'rubber': material('Tires / rubber', '202827', 0, .84),
     'steel': material('Pins / galvanized steel', 'a7b2b2', .75, .3),
     'light': material('Lamps / warm white', 'f6eed2', .1, .21),
@@ -188,12 +189,13 @@ def carrier(b,transport):
         b.rod('paint',(x,-1.32,1.2),(x,-1.32,2.4),.025)
     b.rod('paint',(-6.35,-1.32,2.4),(-5.95,-1.32,2.4),.025)
 
-def cabin(b,origin,raised=False):
-    ox,oy,oz=origin
+def cabin(b,origin,mode='driving'):
+    if mode not in ('driving', 'crane'):
+        raise ValueError('Unknown cabin pose: ' + mode)
     cab = Builder()
     target = b
     b = cab
-    # Build locally, then stretch the single long cabin across half the carrier.
+    # One physical cabin, authored in driving coordinates: nose +X, roof +Z.
     ox = oy = oz = 0
     # A long angular wraparound cab, offset to the side of the folding tower.
     silhouette=[(-1.55,0),(1.55,0),(1.7,.36),(1.58,1.87),(1.17,2.18),(-1.42,2.18),(-1.67,1.65)]
@@ -217,14 +219,27 @@ def cabin(b,origin,raised=False):
         b.rod('steel',(ox+1.15,oy+sign*.7,oz+1.63),(ox+1.43,oy+sign*.94,oz+1.57),.023)
         b.box('dark',(ox+1.44,oy+sign*.95,oz+1.48),(.1,.17,.28),.035)
     b.box('paint',(ox,oy,oz+2.205),(2.74,1.46,.055),.025)
-    if raised:
-        b.box('steel',(ox,oy,oz-.13),(3.08,1.54,.14),.03)
+    # This roof window becomes the forward-facing windshield after pitching 90 degrees.
+    b.box('dark',(-.035,0,2.247),(2.39,1.27,.028),.025)
+    b.mesh('roofglass',[(-1.16,-.575,2.265),(1.09,-.575,2.265),
+                        (1.09,.575,2.265),(-1.16,.575,2.265)],[(0,1,2,3)])
+    b.rod('dark',(.16,-.585,2.28),(.16,.585,2.28),.018,6)
+    b.rod('dark',(.98,-.48,2.285),(.46,.17,2.285),.016,6)
     # Sculpted side-door lower panel, front glass continuing down to the floor.
     for sign in [-1, 1]:
         b.extrude('dark',[(.7,.21),(1.52,.28),(1.48,.92),(.88,.72)],sign*.724,sign*.731)
         b.rod('edge',(-.67,sign*.727,.12),(-.67,sign*.727,.8),.014,6)
+    def placed_vertex(vertex):
+        x,y,z=vertex
+        x,y,z=x*.95,y*.7,z*.79
+        if mode == 'crane':
+            # Pitch about the lateral axis. Roof +Z becomes jib-facing +X;
+            # driving windscreen +X faces downward. Do not yaw the cabin.
+            x,z=z-1.1*.79,-x
+        return (x+origin[0],y+origin[1],z+origin[2])
+
     for key, (vertices,faces,smooth) in cab.parts.items():
-        transformed=[(x*1.64+origin[0],y+origin[1],z*.79+origin[2]) for x,y,z in vertices]
+        transformed=[placed_vertex(vertex) for vertex in vertices]
         offset=len(target.parts[key][0])
         target.parts[key][0].extend(transformed)
         target.parts[key][1].extend(tuple(i+offset for i in f) for f in faces)
@@ -267,8 +282,13 @@ def working():
         for z in [3+i*2 for i in range(14)]:
             b.rod('paint',(px-.28,y,z),(px+.16,y,z),.026,6)
     b.box('dark',(px-.54,.51,16.1),(.095,.075,26.2))
-    # The driving cab is raised up the tower in working configuration.
-    cabin(b,(px-1.3,-1.13,26.2),True)
+    # The complete cabin pitches a quarter turn, then rises along the mast.
+    # Its roof glazing now looks forward along the jib, and its nose points down.
+    cabin(b,(px+.25,-1.13,28.4),mode='crane')
+    # Mast carriage and hinge supports remain fixed to the lift rail.
+    for z in [27.5,29.3]:
+        b.box('dark',(px,-.56,z),(.72,.16,.34),.025)
+        b.rod('steel',(px,-.59,z),(px,-.87,z),.075,10)
     for y in [-.39,.39]:
         b.rod('paint',(px-1.24,y,1.7),(px,y,3.65),.115,12)
         b.rod('steel',(px-1.8,y,1.7),(px-.4,y,3.08),.07,10)
@@ -307,8 +327,14 @@ def working():
 
 def transport():
     b=Builder();carrier(b,True)
-    # Raised cab comes down to the nose, next to the folded tower.
-    cabin(b,(3.3,-.39,1.52))
+    # The same cab is horizontal for driving, next to the folded tower.
+    cabin(b,(4.5,-.52,1.52),mode='driving')
+    # The fixed machinery cover behind the cab is not part of the tilting cabin.
+    b.box('paint',(1.02,-.52,2.35),(3.32,1.38,1.66),.085)
+    b.box('edge',(1.02,-1.218,2.38),(3.05,.02,1.36),.04)
+    for x in [.25,1.78]:
+        b.box('paint',(x,-1.24,2.38),(1.43,.025,1.26),.03)
+        b.box('steel',(x+.48,-1.266,2.54),(.04,.026,.13))
     for z in [1.65,1.94,2.23,2.52,2.81,3.10]:
         b.rod('paint',(-.56,-1.06,z),(-.56,-.68,z),.027,8)
     # Mast and hinge mechanism nest beside the cab and above the carrier.
