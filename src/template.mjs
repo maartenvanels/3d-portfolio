@@ -93,7 +93,7 @@ export function page(c, lang) {
 <body id="top">
 <a class="skip-link" href="#main">${escape(c.skip)}</a>
 <header class="site-header"><div class="container header-inner">
-  <a class="brand" href="${root}${en ? "en/" : ""}" aria-label="Maarten van Els — ${escape(c.home)}"><span class="monogram" aria-hidden="true">m<span>.</span></span><span>Maarten van Els<span class="brand-degree">MSc</span></span></a>
+  <a class="brand" href="${root}${en ? "en/" : ""}" aria-label="Maarten van Els — ${escape(c.home)}"><img class="brand-mark" src="${root}logo.svg" width="46" height="46" alt=""><span>Maarten van Els<span class="brand-degree">MSc</span></span></a>
   <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" data-open="${escape(c.menu)}" data-close="${escape(c.closeMenu)}" hidden>${escape(c.menu)}<span aria-hidden="true">☰</span></button>
   <nav id="navigation" aria-label="${t("Hoofdnavigatie", "Main navigation")}">${c.nav.map((label, i) => `<a href="#${ids[i]}">${escape(label)}</a>`).join("")}</nav>
   <div class="language-switch" aria-label="${escape(c.language)}"><a href="${root}" lang="nl" hreflang="nl" ${!en ? 'aria-current="page"' : ""}>NL</a><span aria-hidden="true">/</span><a href="${root}en/" lang="en" hreflang="en" ${en ? 'aria-current="page"' : ""}>EN</a></div>

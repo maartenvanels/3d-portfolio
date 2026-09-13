@@ -117,14 +117,11 @@ h4 {
   letter-spacing: -0.3px;
   white-space: nowrap;
 }
-.monogram {
-  font: italic 45px/0.8 var(--serif);
-  letter-spacing: -6px;
+.brand-mark {
   display: block;
-  width: 47px;
-}
-.monogram span {
-  color: var(--green);
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
 }
 .brand-degree {
   font-size: 10px;
@@ -980,9 +977,9 @@ details[open] summary > span {
   .brand-degree {
     display: none;
   }
-  .monogram {
-    font-size: 39px;
+  .brand-mark {
     width: 38px;
+    height: 38px;
   }
   .language-switch {
     padding-left: 15px;
