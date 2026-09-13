@@ -179,8 +179,6 @@ export const content = {
       "Mijn route liep van elektrotechniek naar een MSc in Control Systems Engineering, werkend en studerend tegelijk. Bij Spierings groeide ik van software engineer naar lead. Een jaar voor de klas aan de HAN leerde me nog bewuster hoe je kennis overdraagt en anderen laat groeien.",
       "Die behoefte om te bouwen stopt niet bij mijn werk. Ik bouwde mijn eigen huis en maak software en technische projecten vanuit mijn eigen nieuwsgierigheid.",
     ],
-    quote:
-      "Alles wat ik bouw — een kraan, een team of een huis — is pas af als het zonder mij werkt.",
     experienceLabel: "DE ROUTE TOT NU TOE",
     experience: [
       {
@@ -399,8 +397,6 @@ export const content = {
       "My route took me from electrical engineering to an MSc in Control Systems Engineering, combining work and study. At Spierings, I grew from software engineer to lead. A year of teaching at HAN made me more deliberate about sharing knowledge and helping others grow.",
       "That drive to build goes beyond my work. I built my own house and develop software and technical projects out of curiosity.",
     ],
-    quote:
-      "Everything I build — a crane, a team or a house — is only finished when it works without me.",
     experienceLabel: "THE PATH SO FAR",
     experience: [
       {

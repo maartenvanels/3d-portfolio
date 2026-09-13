@@ -761,15 +761,6 @@ details[open] summary > span {
   color: var(--muted);
   margin-bottom: 18px;
 }
-blockquote {
-  margin: 33px 0 24px;
-  padding-left: 23px;
-  border-left: 2px solid var(--green);
-}
-blockquote p {
-  font: italic 25px/1.45 var(--serif);
-  color: var(--ink);
-}
 .experience {
   padding-top: 4px;
 }
@@ -1316,9 +1307,6 @@ blockquote p {
   }
   .about-copy > p:not(.eyebrow) {
     font-size: 14px;
-  }
-  blockquote p {
-    font-size: 26px;
   }
   .contact-inner {
     grid-template-columns: 1fr;
