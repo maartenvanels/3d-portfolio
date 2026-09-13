@@ -1,10 +1,31 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
-// All geometry is authored here. No external models, textures, fonts or runtime CDN.
+// Fit every corner of the selected subject, including the long jib on narrow screens.
+export function fitViewToBounds(position, target, bounds, fov, aspect) {
+  const back = position.clone().sub(target).normalize();
+  const right = new THREE.Vector3(0, 1, 0).cross(back).normalize();
+  const up = back.clone().cross(right);
+  const tangent = Math.tan(THREE.MathUtils.degToRad(fov / 2));
+  let distance = position.distanceTo(target);
+  for (const x of [bounds.min.x, bounds.max.x])
+    for (const y of [bounds.min.y, bounds.max.y])
+      for (const z of [bounds.min.z, bounds.max.z]) {
+        const point = new THREE.Vector3(x, y, z).sub(target);
+        distance = Math.max(distance, point.dot(back) + 1.12 * Math.max(
+          Math.abs(point.dot(right)) / (tangent * aspect),
+          Math.abs(point.dot(up)) / tangent,
+        ));
+      }
+  return position.copy(target).addScaledVector(back, distance);
+}
+
+// Original geometry: a Blender-authored crane plus a procedural workshop. No runtime CDN.
 // Static geometry is batched by material; the handful of moving parts stay separate.
-export function mountWorld({ canvas, stage, onZone, onError }) {
+export async function mountWorld({ canvas, stage, onZone, onError }) {
+  const { scene: crane } = await new GLTFLoader().loadAsync(new URL("./cityboy-working.glb", import.meta.url).href);
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -28,7 +49,7 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
   controls.minPolarAngle = 0.22;
   controls.maxPolarAngle = Math.PI / 2.12;
   controls.minDistance = 10;
-  controls.maxDistance = 60;
+  controls.maxDistance = 120;
   controls.rotateSpeed = 0.6;
   controls.touches.ONE = null; // One finger scrolls the page. Two fingers rotate the scene.
   controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
@@ -175,131 +196,25 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
   ]) {
     box(palette.concrete, [w, 0.07, d], [x, 0.18, z]);
   }
-  // Crane chassis: eight wheels, outrigger feet, cabin, power enclosure.
-  const cz = "crane";
-  box(palette.dark, [7.8, 0.55, 2.0], [-3, 1.05, -2.3], cz);
-  part(rounded, palette.paper, [7.3, 0.46, 2.12], [-3, 1.46, -2.3], cz);
-  for (const x of [-5.7, -4.7, -1.3, -0.3])
-    for (const z of [-3.4, -1.2]) {
-      cyl(palette.rubber, 0.48, 0.3, [x, 0.76, z], cz, [Math.PI / 2, 0, 0]);
-      cyl(palette.steel, 0.22, 0.32, [x, 0.76, z], cz, [Math.PI / 2, 0, 0]);
-      cyl(palette.dark, 0.09, 0.34, [x, 0.76, z], cz, [Math.PI / 2, 0, 0]);
+  // Original Blender model: three-axle carrier, closed telescopic mast and lifting cab.
+  // One shared mesh per material keeps the detailed model cheap to render.
+  crane.scale.setScalar(0.4);
+  crane.position.set(-6.5, 0.18, -3.3);
+  crane.traverse((obj) => {
+    if (!obj.isMesh) return;
+    obj.userData.zone = "crane";
+    obj.castShadow = true;
+    obj.receiveShadow = true;
+    geometries.add(obj.geometry);
+    for (const mat of Array.isArray(obj.material) ? obj.material : [obj.material]) {
+      materials.add(mat);
+      for (const value of Object.values(mat)) if (value?.isTexture) textures.add(value);
     }
-  for (const x of [-5.5, -0.6])
-    for (const z of [-4.35, -0.25]) {
-      box(
-        palette.steel,
-        [0.25, 0.25, 2.4],
-        [x, 0.9, z < -2.3 ? -3.45 : -1.05],
-        cz,
-      );
-      cyl(palette.dark, 0.085, 0.9, [x, 0.6, z], cz);
-      cyl(palette.orange, 0.29, 0.1, [x, 0.21, z], cz);
-    }
-  part(rounded, palette.orange, [1.45, 1.6, 2.05], [-6.35, 1.92, -2.3], cz);
-  box(palette.glass, [0.025, 0.73, 1.74], [-7.09, 2.22, -2.3], cz);
-  for (const z of [-3.335, -1.265])
-    box(palette.glass, [1.05, 0.73, 0.025], [-6.35, 2.22, z], cz);
-  box(palette.paper, [1.51, 0.1, 2.15], [-6.35, 2.77, -2.3], cz);
-  for (const z of [-2.99, -1.61])
-    box(palette.light, [0.035, 0.17, 0.27], [-7.1, 1.59, z], cz);
-  part(rounded, palette.teal, [2.4, 0.95, 1.7], [-1.6, 2.12, -2.3], cz);
-  for (let x = -2.5; x < -0.9; x += 0.22)
-    box(palette.dark, [0.055, 0.6, 0.03], [x, 2.12, -1.43], cz);
-  cyl(palette.dark, 0.86, 0.4, [-4.05, 1.98, -2.3], cz);
-  // Lattice tower: four chords, bracing on every face.
-  const towerX = -4.05,
-    towerZ = -2.3;
-  for (const dx of [-0.4, 0.4])
-    for (const dz of [-0.4, 0.4])
-      beam(
-        [towerX + dx, 2, towerZ + dz],
-        [towerX + dx, 8.35, towerZ + dz],
-        0.07,
-        palette.paper,
-        cz,
-      );
-  for (let y = 2; y < 8; y += 1.05) {
-    for (const dz of [-0.4, 0.4]) {
-      beam(
-        [towerX - 0.4, y, towerZ + dz],
-        [towerX + 0.4, y + 1.05, towerZ + dz],
-        0.038,
-        palette.steel,
-        cz,
-      );
-      beam(
-        [towerX - 0.4, y + 1.05, towerZ + dz],
-        [towerX + 0.4, y, towerZ + dz],
-        0.038,
-        palette.steel,
-        cz,
-      );
-    }
-    for (const dx of [-0.4, 0.4])
-      beam(
-        [towerX + dx, y, towerZ - 0.4],
-        [towerX + dx, y + 1.05, towerZ + 0.4],
-        0.038,
-        palette.paper,
-        cz,
-      );
-  }
-  const jib = new THREE.Group();
-  jib.position.set(towerX, 8.3, towerZ);
-  worldRoot.add(jib);
-  // One moveable assembly, sharing the same primitive geometries.
-  for (const z of [-0.42, 0.42])
-    for (const y of [0, 0.8])
-      beam([-2.7, y, z], [8, y, z], 0.062, palette.orange, cz, jib);
-  for (let x = -2.7; x < 7.5; x += 0.9) {
-    for (const z of [-0.42, 0.42])
-      beam(
-        [x, 0, z],
-        [Math.min(x + 0.9, 8), 0.8, z],
-        0.038,
-        palette.orange,
-        cz,
-        jib,
-      );
-    beam(
-      [x, 0.8, -0.42],
-      [Math.min(x + 0.9, 8), 0.8, 0.42],
-      0.032,
-      palette.orange,
-      cz,
-      jib,
-    );
-  }
-  box(palette.dark, [1.45, 0.75, 1.2], [-2.0, -0.28, 0], cz, [0, 0, 0], jib);
-  beam([0, 0.8, 0], [0, 2.1, 0], 0.075, palette.paper, cz, jib);
-  beam([0, 2.1, 0], [7.5, 0.8, 0], 0.018, palette.dark, cz, jib);
-  beam([0, 2.1, 0], [-2.5, 0.8, 0], 0.018, palette.dark, cz, jib);
-  const trolley = box(
-    palette.dark,
-    [0.6, 0.18, 1.0],
-    [5.5, -0.09, 0],
-    cz,
-    [0, 0, 0],
-    jib,
-  );
-  const cable = beam(
-    [5.5, -0.15, 0],
-    [5.5, -4.6, 0],
-    0.018,
-    palette.dark,
-    cz,
-    jib,
-  );
-  const hook = part(
-    rounded,
-    palette.orange,
-    [0.32, 0.43, 0.3],
-    [5.5, -4.7, 0],
-    cz,
-    [0, 0, 0],
-    jib,
-  );
+  });
+  worldRoot.add(crane);
+  const hoistLines = crane.getObjectByName("CityBoy_HoistLines");
+  const hoistHook = crane.getObjectByName("CityBoy_Hook");
+  const hookRestHeight = hoistHook.position.y;
   label("01 / ELECTRIC & HYBRID", -4, 0.241, -6.05, 5.5);
 
   // Industrial cell: open-sided workshop, sawtooth roof and solar panels.
@@ -472,12 +387,11 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
     }
   label("MVE / ENGINEERING WORKSHOP", 0, 0.17, 8.36, 5.5);
 
-  // Moving assemblies also batch their rigid parts instead of drawing every brace.
-  const movingParts = new Set([trolley, cable, hook]);
-  for (const group of [jib, robot]) {
+  // The robot also batches its rigid parts instead of drawing each joint separately.
+  for (const group of [robot]) {
     const localBatches = new Map();
     for (const mesh of [...group.children]) {
-      if (!mesh.isMesh || movingParts.has(mesh)) continue;
+      if (!mesh.isMesh) continue;
       const key = mesh.geometry.uuid + mesh.material.uuid;
       if (!localBatches.has(key))
         localBatches.set(key, {
@@ -559,14 +473,22 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
     motion = false,
     transition = null,
     last = 0,
-    phase = 0;
+    phase = 0,
+    activeView = "overview";
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const views = {
-    overview: { position: [26, 22, 29], target: [0, 2.2, 0] },
-    crane: { position: [-19, 15, 17], target: [-2.7, 4.2, -2] },
+    overview: { position: [29, 26, 32], target: [0, 4.1, 0] },
+    crane: { position: [20, 17, 24], target: [0.5, 7, -3.3] },
     production: { position: [17, 12, 13], target: [5, 1.4, -3.3] },
     energy: { position: [-16, 10, 20], target: [-5.8, 1.0, 5.4] },
     connected: { position: [15, 10, 21], target: [5, 1.0, 5.8] },
+  };
+  const craneBounds = new THREE.Box3().setFromObject(crane);
+  const viewBounds = {
+    // Separate the low workshop and tall crane so empty upper corners do not force
+    // an unnecessarily distant overview camera.
+    overview: [new THREE.Box3(new THREE.Vector3(-11, -.94, -9), new THREE.Vector3(11, 4, 9)), craneBounds],
+    crane: [craneBounds],
   };
   function resize() {
     if (disposed) return;
@@ -576,6 +498,7 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+    if (activeView) setView(activeView, true);
     invalidate();
   }
   function invalidate() {
@@ -605,12 +528,9 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
     }
     if (motion) {
       phase += dt;
-      jib.rotation.y = Math.sin(phase * 0.22) * 0.13;
-      const lift = Math.sin(phase * 0.7) * 0.8;
-      hook.position.y = -4.7 + lift;
-      cable.scale.y = 4.45 - lift;
-      cable.position.y = (-0.15 - 4.6 + lift) / 2;
-      trolley.position.x = 5.5;
+      const lift = Math.sin(phase * 0.7) * 2;
+      hoistHook.position.y = hookRestHeight + lift;
+      hoistLines.scale.y = 1 - lift / 11.75;
       robot.rotation.y = Math.sin(phase * 0.8) * 0.3;
       packages.forEach((item, i) => {
         item.position.x = 2.5 + ((i * 1.25 + phase * 0.48) % 4.85);
@@ -625,15 +545,12 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
     if (motion || transition) invalidate();
   }
   function setView(zone, immediate = false) {
+    activeView = zone;
     const view = views[zone] || views.overview;
     const target = new THREE.Vector3(...view.target),
       position = new THREE.Vector3(...view.position);
-    // Taller mobile viewports need more distance to fit the wide plinth.
-    if (zone === "overview" && camera.aspect < 1.25)
-      position
-        .sub(target)
-        .multiplyScalar(1.25 / Math.max(camera.aspect, 0.75))
-        .add(target);
+    for (const bounds of viewBounds[zone] || [])
+      fitViewToBounds(position, target, bounds, camera.fov, camera.aspect);
     if (immediate || reduced.matches) {
       camera.position.copy(position);
       controls.target.copy(target);
@@ -652,6 +569,7 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
   }
   function onControlStart() {
     transition = null;
+    activeView = null;
   }
   controls.addEventListener("change", invalidate);
   controls.addEventListener("start", onControlStart);
@@ -732,8 +650,9 @@ export function mountWorld({ canvas, stage, onZone, onError }) {
     setView,
     zoom(factor) {
       transition = null;
+      activeView = null;
       const offset = camera.position.clone().sub(controls.target);
-      offset.multiplyScalar(factor).clampLength(10, 65);
+      offset.multiplyScalar(factor).clampLength(10, 120);
       camera.position.copy(controls.target).add(offset);
       controls.update();
       invalidate();

@@ -11,6 +11,7 @@ const types = {
   ".js": "text/javascript; charset=utf-8",
   ".svg": "image/svg+xml",
   ".jpg": "image/jpeg",
+  ".glb": "model/gltf-binary",
   ".xml": "application/xml",
   ".txt": "text/plain",
 };
@@ -23,6 +24,8 @@ const allowed = new Set([
   "logo.svg",
   "maartenVanEls.jpg",
   "assets/world.js",
+  "assets/cityboy-working.glb",
+  "assets/cityboy-studio.jpg",
   "robots.txt",
   "sitemap.xml",
 ]);

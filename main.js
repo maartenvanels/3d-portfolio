@@ -174,7 +174,7 @@ async function loadWorld() {
   );
   try {
     const { mountWorld } = await import("./assets/world.js");
-    world = mountWorld({
+    world = await mountWorld({
       canvas,
       stage,
       onZone: showZone,

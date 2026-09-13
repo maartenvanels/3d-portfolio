@@ -27,8 +27,6 @@ function illustration(type) {
   const art = {
     power:
       '<rect x="90" y="67" width="105" height="92" rx="6"/><path d="M195 101h83m-8-6 8 6-8 6M278 125h-83m8-6-8 6 8 6"/><rect x="278" y="67" width="112" height="92" rx="6"/><path d="m144 85-20 31h22l-9 24 28-34h-23z"/><circle cx="334" cy="113" r="26"/><path d="M315 113q10-23 20 0t19 0"/><path class="accent-stroke" d="M105 178h269"/><text x="140" y="47">ENERGY</text><text x="306" y="47">MOTION</text>',
-    crane:
-      '<path d="M89 157h235l26 18H80v-13zM250 157V59h17v98M258 59l140-18v13L177 84V70zM198 68l14 10 17-14 15 10 16-14 15 10 16-14 15 9 16-14 15 10 17-14 16 8M255 93l12 18-12 18 12 19M367 58v77m-5 0a5 5 0 1 0 10 0"/><path class="accent-stroke" d="M172 84h62m-133 61h58v-22h-44z"/><circle cx="122" cy="178" r="13"/><circle cx="159" cy="178" r="13"/><circle cx="290" cy="178" r="13"/><circle cx="324" cy="178" r="13"/>',
     cloud:
       '<rect x="72" y="117" width="102" height="66" rx="4"/><path d="M87 131h72m-72 12h72m-72 12h45M176 150h126v-38"/><path d="M279 110h72a23 23 0 0 0 0-46 31 31 0 0 0-60-2 24 24 0 0 0-12 48z"/><circle class="accent-stroke" cx="236" cy="150" r="10"/><path class="accent-stroke" d="M118 86V52h103m-7-6 7 6-7 6"/>',
     process:
@@ -44,9 +42,13 @@ function illustration(type) {
   );
 }
 
-function projectCard(p, c) {
+function cityboyImage(root, en) {
+  return `<img src="${root}assets/cityboy-studio.jpg" width="1400" height="820" loading="lazy" decoding="async" alt="${en ? "Original 3D study of the three-axle Spierings City-boy with its jib folded for transport" : "Eigen 3D-model van de drieassige Spierings City-boy met de giek opgevouwen voor transport"}">`;
+}
+
+function projectCard(p, c, root, en) {
   return `<article class="project" id="project-${p.id}" data-category="${p.category}">
-    <div class="project-art art-${p.visual}">${illustration(p.visual)}<span class="art-index">${escape(p.tags[0])}</span></div>
+    <div class="project-art art-${p.visual}">${p.visual === "crane" ? cityboyImage(root, en) : illustration(p.visual)}<span class="art-index">${escape(p.tags[0])}</span></div>
     <div class="project-body"><p class="eyebrow">${escape(p.label)}</p><h3>${escape(p.title)}</h3><p class="project-subtitle">${escape(p.subtitle)}</p><p>${escape(p.description)}</p>${tags(p.tags)}
     <details><summary>${escape(c.contribution)}<span aria-hidden="true">+</span></summary><div class="project-detail"><h4>${escape(c.context)}</h4><p>${escape(p.challenge)}</p><h4>${escape(c.contribution)}</h4><p>${escape(p.contribution)}</p><h4>${escape(c.result)}</h4><p>${escape(p.result)}</p></div></details>
     ${p.url ? `<div class="project-links"><a href="${escape(p.url)}" target="_blank" rel="noopener noreferrer">${escape(c.repo)} ${external}</a>${p.live ? `<a href="${escape(p.live)}" target="_blank" rel="noopener noreferrer">${escape(c.visit)} ${external}</a>` : ""}</div>` : ""}
@@ -107,7 +109,7 @@ export function page(c, lang) {
     <div class="workshop" id="workshop" data-language="${lang}">
       <div class="workshop-heading"><div><p class="eyebrow">MAARTEN’S WORKSHOP</p><h2>${t("Mijn wereld, in beweging.", "My world, in motion.")}</h2></div><span class="dimension-label">3D</span></div>
       <div class="world-stage" id="world-stage">
-        <div class="world-fallback">${illustration("crane")}<p id="world-status" role="status">${t("Een kijkje in de techniek achter mijn werk.", "A look at the engineering behind my work.")}</p></div>
+        <div class="world-fallback">${cityboyImage(root, en)}<p id="world-status" role="status">${t("Een kijkje in de techniek achter mijn werk.", "A look at the engineering behind my work.")}</p></div>
         <canvas id="world-canvas" aria-label="${t("Interactieve 3D-werkplaats. Gebruik de knoppen hieronder om de omgeving te verkennen.", "Interactive 3D workshop. Use the controls below to explore the scene.")}" hidden></canvas>
         <div class="world-caption" hidden><span class="status-dot" aria-hidden="true"></span><span id="zone-label">${t("De werkplaats", "The workshop")}</span></div>
         <div class="world-tools" hidden>
@@ -133,7 +135,7 @@ export function page(c, lang) {
   <section class="work-section" id="projects" aria-labelledby="projects-heading"><div class="container section">
     <div class="section-heading"><div><p class="eyebrow">${escape(c.workLabel)}</p><h2 id="projects-heading">${escape(c.workTitle)}</h2></div><p>${escape(c.workIntro)}</p></div>
     <div class="filter-bar" hidden><div class="filters" role="group" aria-label="${escape(c.filterLabel)}">${["all", "professional", "personal"].map((id, i) => `<button data-filter="${id}" aria-pressed="${i === 0}" aria-controls="project-grid">${escape(c.filters[i])}</button>`).join("")}</div><p class="project-count" role="status" data-label="${escape(c.count)}">6 ${escape(c.count)}</p></div>
-    <div class="project-grid" id="project-grid">${c.projects.map((p) => projectCard(p, c)).join("")}</div>
+    <div class="project-grid" id="project-grid">${c.projects.map((p) => projectCard(p, c, root, en)).join("")}</div>
   </div></section>
   <section class="section container about-section" id="about" aria-labelledby="about-heading">
     <div class="about-copy"><p class="eyebrow">${escape(c.aboutLabel)}</p><h2 id="about-heading">${escape(c.aboutTitle)}</h2>${c.about.map((p) => `<p>${escape(p)}</p>`).join("")}<blockquote><p>“${escape(c.quote)}”</p></blockquote><a class="text-link" href="${profile.linkedin}" target="_blank" rel="noopener noreferrer">LinkedIn ${external}</a></div>
