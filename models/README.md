@@ -6,7 +6,7 @@ An original, editable Blender model inspired by the Spierings SK487-AT3 City Boy
 
 - `cityboy.blend`: both working and transport poses, materials, studio camera and lighting.
 - `build_cityboy.py`: reproducible geometry and studio-render source for Blender 5.
-- `render_cityboy_views.py`: repeatable transport side/front, working and cabin detail renders for visual review.
+- `render_cityboy_views.py`: repeatable transport side/front, working, cabin and base detail renders for visual review.
 - `../assets/cityboy-working.glb`: the working pose, exported in metres with embedded geometry and materials.
 - `../assets/cityboy-studio.jpg`: Cycles render of the folded transport pose for both portfolio languages and the WebGL fallback.
 
@@ -36,8 +36,10 @@ Generate additional review views without altering the saved Blender scene:
 & 'C:\Program Files\Blender Foundation\Blender 5.0\blender.exe' --background models/cityboy.blend --threads 6 --python models/render_cityboy_views.py -- --views side cabin working --prefix qa/review
 ```
 
+The bearing is placed behind the driving cabin, underneath a continuous upper frame carrying the mast foot, engine cover and ballast. The housing sits closer to the cabin, with a narrow ladder recess between them. The `base` review camera shows this connection in working mode.
+
 ## Web export
 
-Current working export: 1,041,556 bytes, 27,402 triangles and 13 meshes, using 9 materials. The 1.2 MB / 30,000 triangle / 13 mesh limits remain unchanged.
+Current working export: 1,060,252 bytes, 27,862 triangles and 13 meshes, using 9 materials. The 1.2 MB / 30,000 triangle / 13 mesh limits remain unchanged.
 
 The static structure is merged by material. The hook block and four hoist ropes have separate origins so the rope length follows the hook during opt-in animation. There are no texture maps or remote decoder dependencies. Automated checks enforce a 1.2 MB file budget, fewer than 30,000 triangles and at most 13 mesh draws, verify the hoist connection at both travel limits, and inspect the exported roof glazing to confirm that it is vertical and faces forward in crane mode. The roof window has its own material batch so that this orientation can be checked directly on the exported geometry.

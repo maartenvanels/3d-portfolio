@@ -21,6 +21,7 @@ views={
     'side': (False,(0,-40,2.3),(0,0,2.1),15,1400,520),
     'front': (False,(19,-27,9),(0,0,2),17,1400,820),
     'cabin': (True,(10,-12,29.5),(3.8,-.65,28),6.8,900,900),
+    'base': (True,(12,-18,6),(.2,0,2),13,1300,760),
     'working': (True,(43,-68,34),(18,0,17.8),54,1300,1100),
 }
 for view in args.views:
@@ -52,4 +53,3 @@ for view in args.views:
     os.makedirs(os.path.dirname(scene.render.filepath),exist_ok=True)
     bpy.ops.render.render(write_still=True)
     print('REVIEW_READY',scene.render.filepath,flush=True)
-

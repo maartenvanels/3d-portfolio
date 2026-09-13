@@ -141,6 +141,10 @@ def wheel(b,x,y):
 # the jib overhang: it must not be used as the length of the carrier itself.
 AXLES = (2.75, -.58, -2.29)  # 3.330 m and 1.710 m, brochure p. 8.
 MAST_X = 3.55
+SLEW_X = .95
+ENGINE_X = 0
+ENGINE_Z = 2.56
+ENGINE_TOP = ENGINE_Z + 1.51 / 2
 
 def fender(b, x, y):
     # Curved mudguard, with a narrow yellow lip over a dark inner arch.
@@ -193,24 +197,34 @@ def carrier(b,transport):
             b.rod('dark',(5.07,y,z),(5.13,y,z),.072,12)
             b.rod('light',(5.132,y,z),(5.14,y,z),.048,12)
         b.box('red',(-4.83,y,1.22),(.04,.22,.075),.01)
-    # Compact machinery cover, followed by open winch/ballast space.
-    b.box('paint',(-.72,0,2.31),(2.48,2.03,1.51),.10)
+    # The slew bearing sits behind the driving cabin, under the upper frame.
+    # The mast foot is carried forward by this frame; it is not the slew axis.
+    b.rod('dark',(SLEW_X,0,1.51),(SLEW_X,0,1.67),.94,32)
+    b.rod('steel',(SLEW_X,0,1.67),(SLEW_X,0,1.72),.89,32)
+    b.rod('paint',(SLEW_X,0,1.72),(SLEW_X,0,1.78),.86,32)
+    frame_outline=[(-3.8,1.72),(3.97,1.72),(3.97,1.96),(3.22,2.03),
+                   (1.86,1.9),(-3.8,1.9)]
+    for y0,y1 in [(-.87,-.69),(.69,.87)]:
+        b.extrude('paint',frame_outline,y0,y1)
+    for x in [-2.8,SLEW_X,3.24]:
+        b.box('dark',(x,0,1.79),(.16,1.6,.16),.018)
+    # Housing directly behind the cabin, leaving only the narrow access ladder.
+    b.box('paint',(ENGINE_X,0,ENGINE_Z),(2.48,2.03,1.51),.10)
     for sign in [-1,1]:
         y=sign*1.025
-        for z,h in [(2.65,.59),(1.98,.66)]:
-            b.box('edge',(-.72,y,z),(2.22,.024,h),.055)
-            b.box('paint',(-.72,y+sign*.02,z),(2.15,.027,h-.06),.052)
-            b.box('dark',(-.05,y+sign*.045,z+.08),(.045,.025,.11))
+        for z,h in [(ENGINE_Z+.34,.59),(ENGINE_Z-.33,.66)]:
+            b.box('edge',(ENGINE_X,y,z),(2.22,.024,h),.055)
+            b.box('paint',(ENGINE_X,y+sign*.02,z),(2.15,.027,h-.06),.052)
+            b.box('dark',(ENGINE_X+.67,y+sign*.045,z+.08),(.045,.025,.11))
         # Ladder in the narrow gap immediately behind the cabin.
-        for x in [.63,1.06]:
-            b.rod('paint',(x,sign*1.07,1.52),(x,sign*1.07,3.13),.025,8)
-        for z in [1.63+i*.255 for i in range(6)]:
-            b.rod('steel',(.63,sign*1.085,z),(1.06,sign*1.085,z),.023,6)
+        for x in [1.29,1.58]:
+            b.rod('paint',(x,sign*1.07,1.52),(x,sign*1.07,3.38),.025,8)
+        for z in [1.63+i*.255 for i in range(7)]:
+            b.rod('steel',(1.29,sign*1.085,z),(1.58,sign*1.085,z),.023,6)
     # Low carrier-level ballast; avoid the invented tall stack of crates.
-    b.box('dark',(-3.42,0,1.86),(2.15,1.91,.68),.05)
-    for z in [1.62,1.84,2.06]:
-        b.box('paint',(-3.42,0,z),(2.17,1.96,.026))
-    b.rod('dark',(MAST_X,0,1.5),(MAST_X,0,1.72),.84,32)
+    b.box('dark',(-2.7,0,2.14),(2.15,1.91,.68),.05)
+    for z in [1.9,2.12,2.34]:
+        b.box('paint',(-2.7,0,z),(2.17,1.96,.026))
     for y in [-.72,.72]:
         b.rod('paint',(-4.3,y,1.57),(-4.3,y,2.53),.025,6)
         b.rod('paint',(-4.3,y,2.53),(-3.93,y,2.53),.025,6)
@@ -350,8 +364,8 @@ def working():
         b.box('dark',(px,-.56,z),(.72,.16,.34),.025)
         b.rod('steel',(px,-.59,z),(px,-.87,z),.075,10)
     for y in [-.39,.39]:
-        b.rod('paint',(px-1.24,y,1.7),(px,y,3.65),.115,12)
-        b.rod('steel',(px-1.8,y,1.7),(px-.4,y,3.08),.07,10)
+        b.rod('paint',(px-1.24,y,1.93),(px,y,3.65),.115,12)
+        b.rod('steel',(px-1.8,y,1.93),(px-.4,y,3.08),.07,10)
     b.box('dark',(px,0,31.71),(.83,.88,.28),.035)
     # Long folding jib with several elevated suspension masts, not a top slewer's counter-jib.
     for offset,length,height,width,taper in [(0,12.7,.86,.92,0),(12.7,10.5,.86,.92,0),(23.2,12.8,.83,.88,.12),(36,4,.67,.71,.08)]:
@@ -376,12 +390,12 @@ def working():
     b.rod('paint',(px,0,35.83),(px-3.8,0,33.7),.05,8)
     b.rod('paint',(px-3.8,0,33.7),(px,0,32.3),.05,8)
     for y in [-.26,.26]:
-        b.rod('steel',(px-3.8,y,33.7),(px-3.8,y,3.0),.022,6)
+        b.rod('steel',(px-3.8,y,33.7),(px-3.8,y,ENGINE_TOP+.08),.022,6)
     # Stay anchors meet the top of the machinery housing, rather than hanging
     # above the ballast. Shoulder plates and sheaves carry the folding head.
     for y in [-.26,.26]:
-        b.box('paint',(px-3.8,y,3.08),(.22,.09,.24),.018)
-        b.rod('steel',(px-3.8,y-.08,3.14),(px-3.8,y+.08,3.14),.059,10)
+        b.box('paint',(px-3.8,y,ENGINE_TOP+.09),(.22,.09,.24),.018)
+        b.rod('steel',(px-3.8,y-.08,ENGINE_TOP+.08),(px-3.8,y+.08,ENGINE_TOP+.08),.059,10)
     for y in [-.42,.42]:
         b.extrude('paint',[(px-.37,31.4),(px+.42,31.4),(px+.64,31.98),
                           (px+.35,32.45),(px-.23,32.49),(px-.55,32.08)],y-.04,y+.04)
@@ -428,7 +442,7 @@ def transport():
     winch(b,-5.49,-.12,2.69,.30)
     for y in [-.61,.61]:
         b.rod('paint',(-6.4,y,3.45),(-5.54,y,2.21),.075,8)
-        b.rod('paint',(-5.54,y,2.21),(-2.07,y,2.69),.065,8)
+        b.rod('paint',(-5.54,y,2.21),(ENGINE_X-1.16,y,2.69),.065,8)
         b.rod('steel',(-5.78,y,3.4),(-5.03,y,2.73),.055,8)
         b.rod('dark',(-5.03,y,2.73),(-3.86,y,2.47),.082,10)
         b.rod('paint',(-5.59,y,2.22),(-5.59,y,3.4),.051,8)
