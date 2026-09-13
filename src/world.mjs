@@ -479,6 +479,7 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
   const views = {
     overview: { position: [29, 26, 32], target: [0, 4.1, 0] },
     crane: { position: [20, 17, 24], target: [0.5, 7, -3.3] },
+    cabin: { position: [-1.2, 12.8, 3.1], target: [-4.98, 11.38, -2.85] },
     production: { position: [17, 12, 13], target: [5, 1.4, -3.3] },
     energy: { position: [-16, 10, 20], target: [-5.8, 1.0, 5.4] },
     connected: { position: [15, 10, 21], target: [5, 1.0, 5.8] },
@@ -489,6 +490,7 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
     // an unnecessarily distant overview camera.
     overview: [new THREE.Box3(new THREE.Vector3(-11, -.94, -9), new THREE.Vector3(11, 4, 9)), craneBounds],
     crane: [craneBounds],
+    cabin: [new THREE.Box3(new THREE.Vector3(-5.5, 10.3, -3.25), new THREE.Vector3(-4.4, 12.5, -2.35))],
   };
   function resize() {
     if (disposed) return;
@@ -546,6 +548,7 @@ export async function mountWorld({ canvas, stage, onZone, onError }) {
   }
   function setView(zone, immediate = false) {
     activeView = zone;
+    controls.minDistance = zone === "cabin" ? 3 : 10;
     const view = views[zone] || views.overview;
     const target = new THREE.Vector3(...view.target),
       position = new THREE.Vector3(...view.position);

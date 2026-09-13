@@ -69,6 +69,11 @@ const zones = {
     "project-cityboy",
     translate("Bekijk City-boy v2", "Explore City-boy v2"),
   ],
+  cabin: [
+    translate("3-in-1 cabine · dakraam wordt voorruit", "3-in-1 cabin · roof window becomes windscreen"),
+    "project-cityboy",
+    translate("Bekijk City-boy v2", "Explore City-boy v2"),
+  ],
   production: [
     translate("Industriële automatisering", "Industrial automation"),
     "project-automation",

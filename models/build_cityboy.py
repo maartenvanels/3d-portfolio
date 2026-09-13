@@ -30,8 +30,8 @@ def material(name, hex_color, metallic=0.0, roughness=0.5):
     return mat
 
 MATS = {
-    'paint': material('City-boy / warm yellow paint', 'e9b92d', .22, .32),
-    'edge': material('Paint / recessed joints', 'a87b19', .3, .42),
+    'paint': material('City-boy / warm yellow paint', 'f2bf21', .16, .31),
+    'edge': material('Paint / recessed joints', 'b38a22', .24, .42),
     'dark': material('Chassis / graphite', '293332', .42, .43),
     'glass': material('Cab / blue-grey laminated glazing', '244650', .38, .16),
     'roofglass': material('Cab / roof window becomes crane windshield', '315962', .38, .16),
@@ -68,7 +68,7 @@ class Builder:
         verts = [bm.verts.new(v) for v in vertices]
         for f in faces:
             bm.faces.new([verts[i] for i in f])
-        bmesh.ops.bevel(bm, geom=list(bm.edges), offset=min(bevel,a*.4,b*.4,c*.4), segments=2, affect='EDGES')
+        bmesh.ops.bevel(bm, geom=list(bm.edges), offset=min(bevel,a*.4,b*.4,c*.4), segments=1, affect='EDGES')
         bm.verts.ensure_lookup_table()
         for i,v in enumerate(bm.verts): v.index = i
         self.mesh(material, [tuple(v.co) for v in bm.verts], [tuple(v.index for v in f.verts) for f in bm.faces])
@@ -137,145 +137,205 @@ def wheel(b,x,y):
             px,pz=x+.59*math.cos(angle),.77+.59*math.sin(angle)
             b.rod('rubber',(px,y+side_y-.075,pz),(px,y+side_y+.075,pz),.027,4)
 
+# Coordinates in metres: nose +X, width Y, up Z. Overall road length includes
+# the jib overhang: it must not be used as the length of the carrier itself.
+AXLES = (2.75, -.58, -2.29)  # 3.330 m and 1.710 m, brochure p. 8.
+MAST_X = 3.55
+
+def fender(b, x, y):
+    # Curved mudguard, with a narrow yellow lip over a dark inner arch.
+    outline=[]
+    for radius, angles in [(.735, range(0,181,15)),(.665,range(180,-1,-15))]:
+        outline.extend((x+radius*math.cos(math.radians(a)),.77+radius*math.sin(math.radians(a))) for a in angles)
+    b.extrude('dark',outline,y-.27,y+.27)
+    sign=1 if y>0 else -1
+    lip=[(x+r*math.cos(math.radians(a)),.77+r*math.sin(math.radians(a)))
+         for r,angles in [(.746,range(0,181,15)),(.712,range(180,-1,-15))] for a in angles]
+    b.extrude('paint',lip,y+sign*.265,y+sign*.29)
+    b.box('rubber',(x-.7,y,.65),(.05,.47,.42))
+
 def carrier(b,transport):
-    # 13.08 x 2.55 m road footprint, three axles; deployed stabilizers in work pose.
-    b.box('dark',(0,0,.99),(12.9,1.96,.38),.08)
-    b.box('paint',(0,0,1.3),(12.98,2.45,.34),.075)
-    b.box('steel',(0,0,1.49),(12.55,2.5,.09),.025)
-    for x in [3.7,-1.25,-3.65]:
-        b.rod('dark',(x,-1.0,.77),(x,1.0,.77),.12,10)
-        for y in [-1.06,1.06]: wheel(b,x,y)
-    # Low side lockers between the axles, wheel arch decks and rear steps.
-    for y in [-1.16,1.16]:
-        for x,w in [(1.12,3.18),(-5.36,1.22)]:
-            b.box('paint',(x,y,.96),(w,.2,.76),.05)
-            b.box('edge',(x-.15,y*1.095,1.03),(.022,.016,.45))
-            b.box('steel',(x+.2,y*1.095,1.14),(.18,.02,.035))
-        for x in [3.7,-1.25,-3.65]:
-            b.box('dark',(x,y,1.43),(1.43,.4,.105),.02)
-    # Bodywork is carried by the turntable; it is not a truck with a separate cab.
-    body_z = 2.39 if transport else 2.21
-    body_h = 1.75 if transport else 1.42
-    b.box('paint',(-2.8,0,body_z),(4.05,2.1,body_h),.12)
-    for x in [-3.85,-2.5,-1.14]:
-        b.box('edge',(x,-1.058,body_z),(1.22,.026,body_h-.24),.04)
-        b.box('paint',(x,-1.08,body_z),(1.15,.025,body_h-.31),.03)
-        b.box('steel',(x+.35,-1.1,body_z+.2),(.055,.027,.14))
-    for x in [-4.23+i*.18 for i in range(16)]:
-        b.box('dark',(x,1.062,2.1),(.047,.02,.81))
-    b.box('dark',(-5.18,0,2.0),(1.03,1.98,1.02),.035)
-    for z in [1.63,1.9,2.17,2.44]:
-        b.box('paint',(-5.2,0,z),(1.12,2.05,.035))
-    b.rod('dark',(3.55,0,1.48),(3.55,0,1.75),.92,36)
-    # Tall corner jack housings and square support mats.
-    for x in [-5.58,5.5]:
-        for sign in [-1,1]:
-            y=sign*(1.16 if transport else 3.55)
-            b.box('paint',(x,sign*(.8 if transport else 2.03),1.1),(.37,1 if transport else 3.26,.33),.025)
-            b.box('paint',(x,y,1.18),(.34,.36,1.32),.035)
-            b.rod('steel',(x,y,.65 if transport else .22),(x,y,1.22),.08,12)
-            b.box('dark',(x,y,.6 if transport else .16),(.38 if transport else .76,.36 if transport else .72,.12),.04)
-            for z in [.55,.85,1.15]:
-                b.box('edge',(x+.18,y,z),(.012,.23,.025))
-    # Lighting, towing points, rear ladder and exposed plumbing.
-    for y in [-.94,.94]:
-        b.box('dark',(6.51,y,1.13),(.045,.28,.3),.03)
-        for z in [1.04,1.19]: b.rod('light',(6.52,y,z),(6.56,y,z),.07,12)
-        b.box('red',(-6.52,y,1.15),(.035,.22,.08),.015)
-    b.box('dark',(6.56,0,.9),(.12,.58,.12),.03)
-    for z in [.59,.9,1.2]:
-        b.box('steel',(-6.15,-1.25,z),(.4,.28,.055))
-    for x in [-6.35,-5.95]:
-        b.rod('paint',(x,-1.32,1.2),(x,-1.32,2.4),.025)
-    b.rod('paint',(-6.35,-1.32,2.4),(-5.95,-1.32,2.4),.025)
+    b.box('dark',(.095,0,.94),(9.81,1.82,.35),.06)
+    b.box('paint',(.095,0,1.36),(9.81,2.42,.17),.04)
+    b.box('steel',(.095,0,1.48),(9.77,2.5,.07),.015)
+    for x in AXLES:
+        b.rod('dark',(x,-1,.77),(x,1,.77),.12,8)
+        for y in [-1.02,1.02]:
+            wheel(b,x,y)
+            fender(b,x,y)
+    for sign in [-1,1]:
+        y=sign*1.19
+        # Two unequal storage bays between the first and second axle.
+        for x,w in [(1.51,.75),(.59,.99)]:
+            b.box('paint',(x,y,.96),(w,.16,.86),.04)
+            b.box('dark',(x+w*.3,y*1.015,1.2),(.045,.027,.12))
+        b.box('dark',(.58,y*1.017,.91),(.93,.02,.017))
+        # Corner jack housings: 7.20 m longitudinal support spacing.
+        for x in [3.585,-3.615]:
+            foot_y=sign*(1.12 if transport else 3.55)
+            b.box('dark',(x,sign*1.2,1.16),(.44,.39,.45),.02)
+            b.box('paint',(x,sign*(.63 if transport else 2.1),1.1),(.31,1.15 if transport else 3.1,.29),.02)
+            b.box('paint',(x,foot_y,1.07),(.36,.35,1.17),.04)
+            b.rod('steel',(x,foot_y,.41 if transport else .19),(x,foot_y,1.21),.074,10)
+            b.box('dark',(x,foot_y,.41 if transport else .16),(.43 if transport else .74,.47 if transport else .74,.1),.02)
+            for z in [.59,.9,1.2]:
+                b.box('steel',(x+.4,sign*1.19,z),(.35,.22,.045),.008)
+            b.rod('paint',(x+.62,sign*1.29,.51),(x+.62,sign*1.29,1.52),.022,6)
+        for x in [-3,0,3]:
+            b.box('light',(x,sign*1.257,1.49),(.12,.02,.045))
+    # Broad sculpted fascia beneath the cantilevered cabin.
+    b.extrude('paint',[(4.32,.46),(4.99,.48),(5.06,.68),(5.02,1.43),(4.32,1.43)],-1.19,1.19)
+    b.box('edge',(5.065,0,.94),(.015,1.7,.65),.04)
+    b.box('paint',(5.08,0,.96),(.025,1.62,.6),.045)
+    b.box('dark',(5.1,0,.55),(.065,.55,.105),.025)
+    for y in [-1.01,1.01]:
+        for z in [.65,.85,1.05]:
+            b.rod('dark',(5.07,y,z),(5.13,y,z),.072,12)
+            b.rod('light',(5.132,y,z),(5.14,y,z),.048,12)
+        b.box('red',(-4.83,y,1.22),(.04,.22,.075),.01)
+    # Compact machinery cover, followed by open winch/ballast space.
+    b.box('paint',(-.72,0,2.31),(2.48,2.03,1.51),.10)
+    for sign in [-1,1]:
+        y=sign*1.025
+        for z,h in [(2.65,.59),(1.98,.66)]:
+            b.box('edge',(-.72,y,z),(2.22,.024,h),.055)
+            b.box('paint',(-.72,y+sign*.02,z),(2.15,.027,h-.06),.052)
+            b.box('dark',(-.05,y+sign*.045,z+.08),(.045,.025,.11))
+        # Ladder in the narrow gap immediately behind the cabin.
+        for x in [.63,1.06]:
+            b.rod('paint',(x,sign*1.07,1.52),(x,sign*1.07,3.13),.025,8)
+        for z in [1.63+i*.255 for i in range(6)]:
+            b.rod('steel',(.63,sign*1.085,z),(1.06,sign*1.085,z),.023,6)
+    # Low carrier-level ballast; avoid the invented tall stack of crates.
+    b.box('dark',(-3.42,0,1.86),(2.15,1.91,.68),.05)
+    for z in [1.62,1.84,2.06]:
+        b.box('paint',(-3.42,0,z),(2.17,1.96,.026))
+    b.rod('dark',(MAST_X,0,1.5),(MAST_X,0,1.72),.84,32)
+    for y in [-.72,.72]:
+        b.rod('paint',(-4.3,y,1.57),(-4.3,y,2.53),.025,6)
+        b.rod('paint',(-4.3,y,2.53),(-3.93,y,2.53),.025,6)
+        b.rod('paint',(-3.93,y,2.53),(-3.93,y,1.57),.025,6)
 
 def cabin(b,origin,mode='driving'):
-    if mode not in ('driving', 'crane'):
-        raise ValueError('Unknown cabin pose: ' + mode)
-    cab = Builder()
-    target = b
-    b = cab
-    # One physical cabin, authored in driving coordinates: nose +X, roof +Z.
-    ox = oy = oz = 0
-    # A long angular wraparound cab, offset to the side of the folding tower.
-    silhouette=[(-1.55,0),(1.55,0),(1.7,.36),(1.58,1.87),(1.17,2.18),(-1.42,2.18),(-1.67,1.65)]
-    shifted=[(x+ox,z+oz) for x,z in silhouette]
-    b.extrude('paint',shifted,oy-.7,oy+.7)
-    sideglass=[(-1.44,.83),(.88,.72),(1.48,.92),(1.4,1.82),(1.07,2.02),(-1.39,2.02)]
+    if mode not in ('driving','crane'):
+        raise ValueError('Unknown cabin pose: '+mode)
+    target=b
+    b=Builder()
+    # The complete 3-in-1 cabin includes the rear sliding panel. Its sculpted
+    # lower door climbs from the deep front footwell to the rear shoulder.
+    outline=[(-2.3,.1),(-2.12,0),(2.05,0),(2.25,.2),(2.3,.55),
+             (2.16,1.65),(1.98,1.81),(-2.12,1.81),(-2.3,1.63)]
+    b.extrude('paint',outline,-.52,.52)
+    sideglass=[(-.52,1.08),(.78,.85),(1.01,.16),(2.02,.15),
+               (2.18,.4),(2.04,1.65),(1.92,1.7),(-.52,1.7)]
     for sign in [-1,1]:
-        b.extrude('glass',[(x+ox,z+oz) for x,z in sideglass],oy+sign*.706,oy+sign*.719)
-        # Glazing mullions, door seam and handle.
-        b.rod('dark',(ox-.75,oy+sign*.726,oz+.8),(ox-.75,oy+sign*.726,oz+2.02),.026)
-        b.rod('dark',(ox+.61,oy+sign*.726,oz+.78),(ox+.75,oy+sign*.726,oz+2.02),.026)
-        b.box('dark',(ox-.2,oy+sign*.723,oz+.68),(1.4,.02,.08))
-        b.box('steel',(ox-.56,oy+sign*.755,oz+.74),(.18,.04,.035))
-    # A raked full-height windshield; discrete gasket and wiper.
-    vertices=[(ox+1.714,oy-.59,oz+.37),(ox+1.714,oy+.59,oz+.37),
-              (ox+1.599,oy+.59,oz+1.82),(ox+1.599,oy-.59,oz+1.82)]
-    b.mesh('glass',vertices,[(0,1,2,3)])
-    b.rod('dark',(ox+1.713,oy-.1,oz+.51),(ox+1.631,oy+.29,oz+1.51),.02)
-    b.box('dark',(ox+1.63,oy,oz+.22),(.08,1.01,.13),.02)
-    for sign in [-1,1]:
-        b.rod('steel',(ox+1.15,oy+sign*.7,oz+1.63),(ox+1.43,oy+sign*.94,oz+1.57),.023)
-        b.box('dark',(ox+1.44,oy+sign*.95,oz+1.48),(.1,.17,.28),.035)
-    b.box('paint',(ox,oy,oz+2.205),(2.74,1.46,.055),.025)
-    # This roof window becomes the forward-facing windshield after pitching 90 degrees.
-    b.box('dark',(-.035,0,2.247),(2.39,1.27,.028),.025)
-    b.mesh('roofglass',[(-1.16,-.575,2.265),(1.09,-.575,2.265),
-                        (1.09,.575,2.265),(-1.16,.575,2.265)],[(0,1,2,3)])
-    b.rod('dark',(.16,-.585,2.28),(.16,.585,2.28),.018,6)
-    b.rod('dark',(.98,-.48,2.285),(.46,.17,2.285),.016,6)
-    # Sculpted side-door lower panel, front glass continuing down to the floor.
-    for sign in [-1, 1]:
-        b.extrude('dark',[(.7,.21),(1.52,.28),(1.48,.92),(.88,.72)],sign*.724,sign*.731)
-        b.rod('edge',(-.67,sign*.727,.12),(-.67,sign*.727,.8),.014,6)
-    def placed_vertex(vertex):
+        y=sign*.526
+        b.extrude('dark',[(x,z) for x,z in sideglass],y,y+sign*.012)
+        inner=[(-.46,1.13),(.84,.9),(1.08,.21),(1.97,.21),(2.12,.42),
+               (1.98,1.63),(1.87,1.65),(-.46,1.65)]
+        b.extrude('glass',inner,y+sign*.014,y+sign*.02)
+        # Swept yellow door skin and recessed lower moulding.
+        b.extrude('edge',[(-2.05,.17),(.79,.17),(.59,.68),(.38,.8),(-.6,1.0),(-2.05,1.03)],
+                  y+sign*.012,y+sign*.022)
+        b.extrude('paint',[(-2,.22),(.71,.22),(.55,.65),(.34,.74),(-.63,.94),(-2,.97)],
+                  y+sign*.026,y+sign*.038)
+        # Distinct sliding rear panel, with its own inset upper cover.
+        rear=[(-2.19,.13),(-.67,.13),(-.58,1.73),(-2.17,1.73)]
+        b.extrude('edge',rear,y+sign*.04,y+sign*.052)
+        b.extrude('paint',[(-2.12,.18),(-.74,.18),(-.65,1.68),(-2.12,1.68)],
+                  y+sign*.055,y+sign*.064)
+        b.extrude('edge',[(-2.05,1.07),(-.77,1.02),(-.72,1.61),(-2.05,1.61)],
+                  y+sign*.068,y+sign*.075)
+        b.extrude('paint',[(-1.99,1.12),(-.83,1.08),(-.79,1.55),(-1.99,1.55)],
+                  y+sign*.078,y+sign*.09)
+        b.box('dark',(-1.82,y+sign*.105,1.04),(.16,.026,.045),.007)
+        b.rod('steel',(-2.1,y+sign*.06,.07),(-.65,y+sign*.06,.07),.027,8)
+        b.rod('dark',(.78,y+sign*.033,.88),(.78,y+sign*.033,1.67),.025,6)
+        # Large stacked mirrors, mounted on an extended arm.
+        b.rod('paint',(1.82,y,1.68),(2.46,sign*.83,1.62),.024,8)
+        b.rod('dark',(2.46,sign*.83,.93),(2.46,sign*.83,1.63),.025,8)
+        for z,h in [(1.39,.38),(1.02,.22)]:
+            b.box('dark',(2.46,sign*.84,z),(.12,.24,h),.04)
+            b.box('steel',(2.394,sign*.84,z),(.008,.195,h-.055),.015)
+    # Windscreen follows the raked nose; glazing continues below the wiper.
+    front=[(2.324,-.45,.48),(2.324,.45,.48),(2.182,.45,1.65),(2.182,-.45,1.65)]
+    b.mesh('dark',front,[(0,1,2,3)])
+    b.mesh('glass',[(2.327,-.4,.54),(2.327,.4,.54),(2.194,.4,1.6),(2.194,-.4,1.6)],[(0,1,2,3)])
+    b.rod('dark',(2.348,-.28,.56),(2.245,.12,1.36),.019,6)
+    b.box('dark',(2.294,0,.23),(.025,.87,.3),.025)
+    b.box('paint',(-.08,0,1.827),(4.14,1.08,.05),.025)
+    # The roof's forward viewing area becomes the crane-mode windshield.
+    b.box('dark',(.76,0,1.864),(2.32,.96,.025),.025)
+    b.mesh('roofglass',[(-.34,-.43,1.879),(1.87,-.43,1.879),
+                        (1.87,.43,1.879),(-.34,.43,1.879)],[(0,1,2,3)])
+    b.rod('dark',(.5,-.44,1.89),(.5,.44,1.89),.019,6)
+    b.rod('dark',(1.76,-.35,1.9),(1.13,.23,1.9),.015,6)
+    def placed(vertex):
         x,y,z=vertex
-        x,y,z=x*.95,y*.7,z*.79
-        if mode == 'crane':
-            # Pitch about the lateral axis. Roof +Z becomes jib-facing +X;
-            # driving windscreen +X faces downward. Do not yaw the cabin.
-            x,z=z-1.1*.79,-x
+        if mode=='crane':
+            x,z=z-.9,-x  # Roof +Z -> jib-facing +X; road nose +X -> down.
         return (x+origin[0],y+origin[1],z+origin[2])
-
-    for key, (vertices,faces,smooth) in cab.parts.items():
-        transformed=[placed_vertex(vertex) for vertex in vertices]
+    for key,(vertices,faces,smooth) in b.parts.items():
         offset=len(target.parts[key][0])
-        target.parts[key][0].extend(transformed)
+        target.parts[key][0].extend(placed(v) for v in vertices)
         target.parts[key][1].extend(tuple(i+offset for i in f) for f in faces)
         target.parts[key][2].extend(smooth)
 
-def truss(b,start,length,height=.85,width=.9):
+def truss(b,start,length,height=.85,width=.9,taper=0):
     x,y,z=start
-    # Triangular lattice sections with taper, hinges and upper bracing.
-    count=math.ceil(length/1.22)
+    count=math.ceil(length/1.18)
+    def section(t):
+        s=1-taper*t/length
+        return [(x+t,y-width*s/2,z),(x+t,y+width*s/2,z),(x+t,y,z+height*s)]
+    # Alternating Warren diagonals, instead of two intersecting rods per bay.
     for i in range(count):
-        a=length*i/count;c=length*(i+1)/count
-        taper_a=1-.52*a/length;taper_c=1-.52*c/length
-        baseA=[(x+a,y-width*taper_a/2,z),(x+a,y+width*taper_a/2,z)]
-        baseC=[(x+c,y-width*taper_c/2,z),(x+c,y+width*taper_c/2,z)]
-        topA=(x+a,y,z+height*taper_a);topC=(x+c,y,z+height*taper_c)
+        a=section(length*i/count);c=section(length*(i+1)/count)
+        for j in range(3):
+            b.rod('paint',a[j],c[j],.055 if j<2 else .065,8)
         for j in [0,1]:
-            b.rod('paint',baseA[j],baseC[j],.059,8)
-            b.rod('paint',baseA[j],topC,.036,6)
-            b.rod('paint',topA,baseC[j],.03,6)
-        b.rod('paint',topA,topC,.064,8)
-        b.rod('paint',baseA[0],baseC[1],.029,6)
-        if i%7==0:
-            for p in baseA:b.rod('steel',(p[0],p[1]-.08,p[2]),(p[0],p[1]+.08,p[2]),.085,10)
+            b.rod('paint',a[j] if i%2==0 else a[2],c[2] if i%2==0 else c[j],.032,6)
+        b.rod('paint',a[i%2],c[1-i%2],.026,6)
+    for t in [0,length]:
+        p=section(t)
+        for j in range(3): b.rod('paint',p[j],p[(j+1)%3],.045,8)
+
+def winch(b,x,y,z,r=.26):
+    # Exposed drum with closely spaced cable turns and separate end cheeks.
+    b.rod('dark',(x,y-.29,z),(x,y+.29,z),r,20)
+    for sy in [-.33,.33]:
+        b.rod('paint',(x,y+sy-.025,z),(x,y+sy+.025,z),r*1.23,20)
+        b.rod('steel',(x,y+sy-.04,z),(x,y+sy+.04,z),r*.43,12)
+    for sy in [-.24+i*.048 for i in range(11)]:
+        b.rod('steel',(x,y+sy-.01,z),(x,y+sy+.01,z),r*1.01,20)
+    for sy in [-.37,.37]:
+        b.extrude('paint',[(x-.36,z-.36),(x+.36,z-.36),(x+.21,z+.11),(x-.17,z+.11)],
+                  y+sy-.025,y+sy+.025)
+
+def mast_section(b,px,z0,z1,w,d):
+    # Two longitudinal side channels with an open, cross-braced front/back face.
+    for sign in [-1,1]:
+        b.box('paint',(px,sign*d/2,(z0+z1)/2),(w,.09,z1-z0))
+        for sx in [-1,1]:
+            b.box('paint',(px+sx*w/2,sign*(d/2-.05),(z0+z1)/2),(.09,.19,z1-z0))
+    count=math.ceil((z1-z0)/1.08)
+    for i in range(count):
+        za=z0+(z1-z0)*i/count;zb=z0+(z1-z0)*(i+1)/count
+        for sx in [-1,1]:
+            x=px+sx*w/2
+            b.rod('paint',(x,-d/2,za),(x,d/2,zb),.027,6)
+            b.rod('paint',(x,d/2,za),(x,-d/2,zb),.027,6)
+    for z in [z0,z1]:
+        b.box('edge',(px,0,z),(w+.11,d+.12,.15),.012)
+        b.box('paint',(px,0,z+.11),(w+.09,d+.1,.065))
+    b.rod('steel',(px+.11,-d/2-.07,z0),(px+.11,-d/2-.07,z1),.025,8)
 
 def working():
     b=Builder();carrier(b,False)
-    # Three nested closed tower sections, with cable guides and extension collars.
-    px=3.55
+    px=MAST_X
     b.box('paint',(px,0,1.97),(1.26,1.06,.4),.05)
     for z0,z1,w,d in [(2.15,12.5,.98,.88),(12.4,22.3,.77,.7),(22.2,31.6,.58,.56)]:
-        b.box('paint',(px,0,(z0+z1)/2),(w,d,z1-z0),.035)
-        b.box('edge',(px,0,z1-.08),(w+.15,d+.13,.2),.018)
-        b.box('paint',(px,0,z1+.1),(w+.12,d+.11,.13),.014)
-        b.rod('steel',(px+.1,-d/2-.08,z0),(px+.1,-d/2-.08,z1),.037,10)
-        for z in [z0+.7+i*1.2 for i in range(int((z1-z0)/1.2))]:
-            b.box('dark',(px-.15,-d/2-.02,z),(.2,.045,.065))
+        mast_section(b,px,z0,z1,w,d)
+    winch(b,px-1.22,0,2.06,.24)
     # Continuous lift rail and a dark cable carrier on the mast's side.
     for y in [-.61,.61]:
         b.rod('steel',(px-.28,y,2.4),(px-.28,y,30.3),.032,8)
@@ -284,7 +344,7 @@ def working():
     b.box('dark',(px-.54,.51,16.1),(.095,.075,26.2))
     # The complete cabin pitches a quarter turn, then rises along the mast.
     # Its roof glazing now looks forward along the jib, and its nose points down.
-    cabin(b,(px+.25,-1.13,28.4),mode='crane')
+    cabin(b,(px+.25,-1.13,28.0),mode='crane')
     # Mast carriage and hinge supports remain fixed to the lift rail.
     for z in [27.5,29.3]:
         b.box('dark',(px,-.56,z),(.72,.16,.34),.025)
@@ -294,21 +354,42 @@ def working():
         b.rod('steel',(px-1.8,y,1.7),(px-.4,y,3.08),.07,10)
     b.box('dark',(px,0,31.71),(.83,.88,.28),.035)
     # Long folding jib with several elevated suspension masts, not a top slewer's counter-jib.
-    truss(b,(px,0,32.0),40,.86,.92)
-    for x,h in [(px,3.28),(px+12.7,2.28),(px+23.2,1.65)]:
+    for offset,length,height,width,taper in [(0,12.7,.86,.92,0),(12.7,10.5,.86,.92,0),(23.2,12.8,.83,.88,.12),(36,4,.67,.71,.08)]:
+        truss(b,(px+offset,0,32),length,height,width,taper)
+    # Plate pairs and hinge pins connect the three independently folding spans.
+    for x in [px,px+12.7,px+23.2]:
+        for y in [-.47,.47]:
+            b.extrude('paint',[(x-.25,31.92),(x+.25,31.92),(x+.17,32.21),(x-.15,32.26)],y-.035,y+.035)
+            b.rod('steel',(x,y-.09,32.08),(x,y+.09,32.08),.1,12)
+        b.rod('dark',(x-.35,-.31,32.5),(x+.52,-.31,32.5),.07,10)
+        b.rod('steel',(x+.5,-.31,32.5),(x+.92,-.31,32.5),.04,8)
+    for x,h in [(px,3.28),(px+12.7,3.28),(px+23.2,3.28)]:
         b.rod('paint',(x,0,32.55),(x,0,32.55+h),.061,8)
         b.rod('steel',(x-.16,-.13,32.7),(x+.16,.13,32.7),.07,10)
-    for a,c in [((px,0,35.83),(px+12.7,0,34.83)),
-                ((px+12.7,0,34.83),(px+23.2,0,34.2)),
-                ((px+23.2,0,34.2),(px+39.3,0,32.46)),
+    for a,c in [((px,0,35.83),(px+12.7,0,35.83)),
+                ((px+12.7,0,35.83),(px+23.2,0,35.83)),
+                ((px+23.2,0,35.83),(px+39.3,0,32.46)),
                 ((px,0,35.83),(px+12.7,0,32.8)),
-                ((px+12.7,0,34.83),(px+23.2,0,32.6))]:
+                ((px+12.7,0,35.83),(px+23.2,0,32.6))]:
         b.rod('steel',a,c,.022,6)
     # Rear-folding suspension stays return to ballast mounted on the carrier.
     b.rod('paint',(px,0,35.83),(px-3.8,0,33.7),.05,8)
     b.rod('paint',(px-3.8,0,33.7),(px,0,32.3),.05,8)
     for y in [-.26,.26]:
-        b.rod('steel',(px-3.8,y,33.7),(-3.4,y,2.94),.022,6)
+        b.rod('steel',(px-3.8,y,33.7),(px-3.8,y,3.0),.022,6)
+    # Stay anchors meet the top of the machinery housing, rather than hanging
+    # above the ballast. Shoulder plates and sheaves carry the folding head.
+    for y in [-.26,.26]:
+        b.box('paint',(px-3.8,y,3.08),(.22,.09,.24),.018)
+        b.rod('steel',(px-3.8,y-.08,3.14),(px-3.8,y+.08,3.14),.059,10)
+    for y in [-.42,.42]:
+        b.extrude('paint',[(px-.37,31.4),(px+.42,31.4),(px+.64,31.98),
+                          (px+.35,32.45),(px-.23,32.49),(px-.55,32.08)],y-.04,y+.04)
+        for x,z in [(px,31.83),(px+.36,32.19)]:
+            b.rod('dark',(x,y-.05,z),(x,y+.05,z),.135,16)
+            b.rod('steel',(x,y-.065,z),(x,y+.065,z),.079,12)
+    for y in [-.27,.27]:
+        b.rod('steel',(px+36,y,31.98),(px+36,y,32.09),.105,12)
     # Four-fall reeving, with separate local origins for the web hoist animation.
     hx=px+28.4
     b.box('dark',(hx,0,31.85),(.7,1.02,.25),.035)
@@ -327,36 +408,50 @@ def working():
 
 def transport():
     b=Builder();carrier(b,True)
-    # The same cab is horizontal for driving, next to the folded tower.
-    cabin(b,(4.5,-.52,1.52),mode='driving')
-    # The fixed machinery cover behind the cab is not part of the tilting cabin.
-    b.box('paint',(1.02,-.52,2.35),(3.32,1.38,1.66),.085)
-    b.box('edge',(1.02,-1.218,2.38),(3.05,.02,1.36),.04)
-    for x in [.25,1.78]:
-        b.box('paint',(x,-1.24,2.38),(1.43,.025,1.26),.03)
-        b.box('steel',(x+.48,-1.266,2.54),(.04,.026,.13))
-    for z in [1.65,1.94,2.23,2.52,2.81,3.10]:
-        b.rod('paint',(-.56,-1.06,z),(-.56,-.68,z),.027,8)
-    # Mast and hinge mechanism nest beside the cab and above the carrier.
-    b.box('paint',(-.5,.53,3.12),(10.2,.66,.54),.04)
-    b.box('steel',(-.5,.18,3.17),(9.8,.045,.045))
+    cabin(b,(3.94,-.65,1.57),mode='driving')
+    # Nested mast beside the cab; rear mechanisms remain visibly open.
+    b.box('paint',(-.18,.55,2.89),(10.55,.67,.57),.035)
     for x in [-4.5,-2,.5,3]:
-        b.box('edge',(x,.53,3.12),(.13,.73,.66),.015)
-    for y in [.21,.86]:
-        b.rod('paint',(6.05,y,2.01),(4.6,y,3.52),.13,12)
-        b.rod('steel',(6.05,y,2.29),(4.85,y,3.52),.065,10)
-        b.rod('steel',(5.72,y-.15,2.24),(5.72,y+.15,2.24),.21,16)
-    # Three folded jib sections, parallel chord stacks and visible folding pins.
-    truss(b,(-6.15,-.32,3.52),12.3,.6,1.02)
-    truss(b,(-5.88,.53,3.59),11.84,.55,.66)
-    for x in [-5.97,5.75]:
-        b.rod('paint',(x,-.86,3.55),(x,.84,3.55),.13,12)
-        b.rod('dark',(x,-.91,3.55),(x,.91,3.55),.061,12)
-    for y in [-.58,.7]:
-        b.rod('steel',(-5.6,y,4.06),(5.28,y,4.08),.025,6)
-    # Work hoses, bumper detailing and equipment near the folding hinge.
-    for i in range(5):
-        b.rod('dark',(5.87,.11+i*.11,1.75),(5.31,.11+i*.11,3.37),.026,6)
+        b.box('edge',(x,.55,2.89),(.12,.75,.68),.01)
+    for y in [.19,.91]:
+        b.rod('paint',(5.62,y,1.82),(4.1,y,3.37),.12,10)
+        b.rod('steel',(5.66,y,2.06),(4.51,y,3.27),.065,10)
+        b.rod('steel',(5.47,y-.09,2.04),(5.47,y+.09,2.04),.18,14)
+    # Full-depth parallel folded sections; no taper across the entire roof.
+    truss(b,(-6.6,-.37,3.41),12.7,.64,1.1)
+    truss(b,(-6.36,.47,3.43),12.1,.55,.95)
+    truss(b,(-5.9,.05,3.26),10.8,.53,.74)
+    for x in [-6.46,5.79]:
+        b.rod('paint',(x,-.96,3.51),(x,.99,3.51),.105,10)
+        b.rod('steel',(x,-1.01,3.51),(x,1.04,3.51),.063,10)
+    # Rear folding linkage, cable drum and exposed diagonal supports.
+    winch(b,-5.49,-.12,2.69,.30)
+    for y in [-.61,.61]:
+        b.rod('paint',(-6.4,y,3.45),(-5.54,y,2.21),.075,8)
+        b.rod('paint',(-5.54,y,2.21),(-2.07,y,2.69),.065,8)
+        b.rod('steel',(-5.78,y,3.4),(-5.03,y,2.73),.055,8)
+        b.rod('dark',(-5.03,y,2.73),(-3.86,y,2.47),.082,10)
+        b.rod('paint',(-5.59,y,2.22),(-5.59,y,3.4),.051,8)
+    # Prominent front knuckle and sheave cluster beside the driving windshield.
+    for x,z in [(5.97,2.12),(5.42,2.39),(4.75,3.55)]:
+        for y in [.2,.92]:
+            b.rod('dark',(x,y-.075,z),(x,y+.075,z),.19,16)
+            b.rod('steel',(x,y-.084,z),(x,y+.084,z),.145,16)
+            b.rod('paint',(x,y-.093,z),(x,y+.093,z),.065,12)
+    for y in [.24,.86]:
+        for a,c in [((6.08,y,2.08),(5.19,y,3.32)),((5.19,y,3.32),(4.45,y,3.93)),
+                    ((6.08,y,2.08),(5.65,y,1.69)),((5.65,y,1.69),(5.05,y,1.78))]:
+            b.rod('paint',a,c,.07,8)
+        b.rod('dark',(5.98,y,2.28),(4.89,y,3.68),.035,6)
+    for i in range(4):
+        b.rod('dark',(5.47,.3+i*.1,2.17),(4.77,.3+i*.1,3.28),.023,6)
+    # Grey front linkage bridge with paired pivots and hydraulic fittings.
+    b.extrude('dark',[(5.41,2.11),(6.01,2.11),(6.15,2.38),(5.89,2.65),(5.55,2.53)],
+              .08,1.08)
+    for y in [.12,1.045]:
+        for x,z in [(5.66,2.33),(5.94,2.42)]:
+            b.rod('steel',(x,y-.055,z),(x,y+.055,z),.095,12)
+            b.rod('paint',(x,y-.065,z),(x,y+.065,z),.042,10)
     return b.finish('CityBoy_Transport')
 
 work=working()
@@ -396,12 +491,12 @@ def area(name,location,power,size,target):
 area('Key softbox',(6,-8,14),2600,9,(0,0,1.6))
 area('Rim strip',(-5,6,10),3400,8,(0,0,2))
 area('Front fill',(10,3,7),1700,7,(1,0,2))
-bpy.ops.object.camera_add(location=(19,-27,11))
+bpy.ops.object.camera_add(location=(18,-30,8.8))
 camera=bpy.context.object;camera.name='Studio_camera';to_studio(camera)
 camera.rotation_euler=(Vector((0,0,2.0))-camera.location).to_track_quat('-Z','Y').to_euler()
-camera.data.type='ORTHO';camera.data.ortho_scale=18.7;bpy.context.scene.camera=camera
+camera.data.type='ORTHO';camera.data.ortho_scale=17.6;bpy.context.scene.camera=camera
 scene=bpy.context.scene
-scene.render.engine='CYCLES';scene.cycles.samples=48;scene.cycles.use_denoising=True
+scene.render.engine='CYCLES';scene.cycles.samples=64;scene.cycles.use_denoising=True
 scene.render.resolution_x=1400;scene.render.resolution_y=820;scene.render.resolution_percentage=100
 scene.render.image_settings.file_format='JPEG';scene.render.image_settings.quality=90
 scene.render.filepath=os.path.join(ASSETS,'cityboy-studio.jpg')

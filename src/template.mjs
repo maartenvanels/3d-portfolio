@@ -121,7 +121,7 @@ export function page(c, lang) {
         </div>
       </div>
       <div class="world-bottom"><div class="world-views" role="group" aria-label="${t("Camera kiezen", "Choose a camera")}" hidden>
-        ${["overview", "crane", "production", "energy"].map((id, i) => `<button data-view="${id}" aria-pressed="${i === 0}">${[t("Overzicht", "Overview"), t("Kranen", "Cranes"), t("Productielijn", "Production"), t("Energie", "Energy")][i]}</button>`).join("")}
+        ${["overview", "crane", "cabin", "production", "energy"].map((id, i) => `<button data-view="${id}" aria-pressed="${i === 0}">${[t("Overzicht", "Overview"), t("Kranen", "Cranes"), t("Cabine", "Cabin"), t("Productielijn", "Production"), t("Energie", "Energy")][i]}</button>`).join("")}
       </div><p class="world-hint">${t("Sleep om te draaien · kies een onderdeel om te ontdekken", "Drag to rotate · select a part to explore")}</p><a class="world-project-link" href="#projects" id="world-project-link">${t("Ontdek de projecten", "Explore the projects")} ${external}</a></div>
       <button class="world-retry button" hidden>${t("3D opnieuw laden", "Retry loading 3D")}</button>
       <span class="workshop-note">${t("Een illustratie van mijn vakgebieden; geen productmodel.", "An illustration of my fields of work; not a product model.")}</span>
