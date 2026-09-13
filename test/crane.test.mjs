@@ -51,7 +51,9 @@ test("City-boy exports the tilted crane cabin, connected hoist and bounded geome
   });
   assert.ok(roofWindow, "The shared cabin needs a roof window");
   scene.updateMatrixWorld(true);
-  const windowSize = new Box3().setFromObject(roofWindow).getSize(new Vector3());
+  const windowBounds = new Box3().setFromObject(roofWindow);
+  const windowSize = windowBounds.getSize(new Vector3());
+  assert.ok(windowBounds.max.z < 0, "Cabin must sit on vehicle-left: -Z in the Y-up export");
   assert.ok(windowSize.x < .01 && windowSize.y > 2 && windowSize.y < 2.3,
     "The driving roof must become a tall vertical crane windshield");
   const normalMatrix = new Matrix3().getNormalMatrix(roofWindow.matrixWorld);

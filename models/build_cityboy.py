@@ -98,7 +98,11 @@ class Builder:
         bpy.context.collection.objects.link(root)
         for key,(vertices,faces,smooth) in self.parts.items():
             mesh = bpy.data.meshes.new(name + '/' + key)
-            mesh.from_pydata(vertices, [], faces)
+            # Bake the construction's handedness into the vertices: the cabin
+            # belongs on vehicle-left (+Y with nose +X), including its carriage.
+            # Reverse winding as well; no negative object scale reaches glTF.
+            mesh.from_pydata([(x,-y,z) for x,y,z in vertices], [],
+                             [tuple(reversed(face)) for face in faces])
             bm = bmesh.new()
             bm.from_mesh(mesh)
             bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
@@ -142,7 +146,8 @@ def wheel(b,x,y):
 AXLES = (2.75, -.58, -2.29)  # 3.330 m and 1.710 m, brochure p. 8.
 MAST_X = 3.55
 SLEW_X = .95
-ENGINE_X = 0
+ENGINE_X = -.33
+ENGINE_LENGTH = 3.14
 ENGINE_Z = 2.56
 ENGINE_TOP = ENGINE_Z + 1.51 / 2
 
@@ -197,25 +202,63 @@ def carrier(b,transport):
             b.rod('dark',(5.07,y,z),(5.13,y,z),.072,12)
             b.rod('light',(5.132,y,z),(5.14,y,z),.048,12)
         b.box('red',(-4.83,y,1.22),(.04,.22,.075),.01)
+    # Closed rear service chest and vertically arranged lamps, beneath the deck.
+    b.box('paint',(-4.6,0,.98),(.47,2.4,.91),.075)
+    b.box('edge',(-4.842,0,.97),(.016,1.84,.66),.025)
+    b.box('paint',(-4.854,0,.97),(.02,1.77,.60),.025)
+    b.box('dark',(-4.882,-.57,1.16),(.028,.15,.045),.009)
+    b.box('dark',(-4.91,0,.48),(.15,2.48,.13),.03)
+    for y in [-1.075,1.075]:
+        b.box('dark',(-4.849,y,.94),(.04,.20,.70),.026)
+        for i,z in enumerate([.68,.85,1.02,1.19]):
+            b.rod('steel',(-4.879,y,z),(-4.889,y,z),.069,12)
+            b.rod('red' if i==2 else 'light',(-4.89,y,z),(-4.895,y,z),.048,12)
     # The slew bearing sits behind the driving cabin, under the upper frame.
     # The mast foot is carried forward by this frame; it is not the slew axis.
     b.rod('dark',(SLEW_X,0,1.51),(SLEW_X,0,1.67),.94,32)
     b.rod('steel',(SLEW_X,0,1.67),(SLEW_X,0,1.72),.89,32)
     b.rod('paint',(SLEW_X,0,1.72),(SLEW_X,0,1.78),.86,32)
-    frame_outline=[(-3.8,1.72),(3.97,1.72),(3.97,1.96),(3.22,2.03),
-                   (1.86,1.9),(-3.8,1.9)]
+    # The frame ends at the counterweight cradle, not halfway across the deck.
+    frame_outline=[(-2.29,1.78),(-2.06,1.72),(3.97,1.72),(3.97,1.96),
+                   (3.22,2.03),(1.86,1.9),(-2.29,1.9)]
     for y0,y1 in [(-.87,-.69),(.69,.87)]:
         b.extrude('paint',frame_outline,y0,y1)
-    for x in [-2.8,SLEW_X,3.24]:
+    for x in [-2.13,SLEW_X,3.24]:
         b.box('dark',(x,0,1.79),(.16,1.6,.16),.018)
+    # One integrated ballast apron, with chamfered shoulders either side of the
+    # rear mechanism recess. This is not a stack of carried outrigger plates.
+    b.box('paint',(ENGINE_X-.19,0,1.97),(ENGINE_LENGTH+.45,2.12,.34),.095)
+    for sign in [-1,1]:
+        b.extrude('paint',[(-2.32,1.99),(-2.25,2.53),(-2.01,2.66),
+                          (-1.77,2.66),(-1.77,1.99)],sign*.61,sign*1.045)
+        b.box('edge',(-2.28,sign*.827,2.26),(.016,.31,.27),.014)
+    b.box('paint',(-2.24,0,2.04),(.16,1.3,.17),.035)
+    b.box('dark',(-1.96,0,2.19),(.37,1.05,.10),.025)
+    if not transport:
+        # Rear hoist drum occupies the recess above the ballast cradle.
+        b.rod('dark',(-2.13,-.36,2.78),(-2.13,.36,2.78),.26,16)
+        for y in [-.40,.40]:
+            b.rod('paint',(-2.13,y-.024,2.78),(-2.13,y+.024,2.78),.32,16)
+            b.rod('steel',(-2.13,y-.034,2.78),(-2.13,y+.034,2.78),.12,12)
+            b.extrude('paint',[(-2.36,2.15),(-1.92,2.15),(-1.99,2.81),(-2.26,2.81)],y-.025,y+.025)
     # Housing directly behind the cabin, leaving only the narrow access ladder.
-    b.box('paint',(ENGINE_X,0,ENGINE_Z),(2.48,2.03,1.51),.10)
+    b.box('paint',(ENGINE_X,0,ENGINE_Z+.065),(ENGINE_LENGTH,2.03,1.38),.10)
     for sign in [-1,1]:
         y=sign*1.025
-        for z,h in [(ENGINE_Z+.34,.59),(ENGINE_Z-.33,.66)]:
-            b.box('edge',(ENGINE_X,y,z),(2.22,.024,h),.055)
-            b.box('paint',(ENGINE_X,y+sign*.02,z),(2.15,.027,h-.06),.052)
-            b.box('dark',(ENGINE_X+.67,y+sign*.045,z+.08),(.045,.025,.11))
+        # Flush upper hatch, shaped lower service door and small visible catches.
+        b.box('edge',(ENGINE_X,y,2.91),(ENGINE_LENGTH-.26,.014,.59),.065)
+        b.box('paint',(ENGINE_X,y+sign*.012,2.91),(ENGINE_LENGTH-.32,.018,.53),.064)
+        lower=[(-1.07,2.55),(1.06,2.55),(1.06,2.11),(-.81,2.11),(-.99,2.2)]
+        inset=[(-1.025,2.51),(1.02,2.51),(1.02,2.15),(-.79,2.15),(-.955,2.23)]
+        lower=[(ENGINE_X+x*ENGINE_LENGTH/2.48,z) for x,z in lower]
+        inset=[(ENGINE_X+x*ENGINE_LENGTH/2.48,z) for x,z in inset]
+        b.extrude('edge',lower,y,y+sign*.014)
+        b.extrude('paint',inset,y+sign*.016,y+sign*.025)
+        b.box('dark',(.69,y+sign*.039,2.36),(.046,.023,.14),.008)
+        b.box('steel',(.30,y+sign*.039,2.19),(.045,.02,.074),.007)
+        for x in [ENGINE_X+t*(ENGINE_LENGTH-.46) for t in [-.5,-1/6,1/6,.5]]:
+            for z in [2.70,3.12]:
+                b.box('steel',(x,y+sign*.028,z),(.022,.012,.035))
         # Ladder in the narrow gap immediately behind the cabin.
         for x in [1.29,1.58]:
             b.rod('paint',(x,sign*1.07,1.52),(x,sign*1.07,3.38),.025,8)
@@ -431,7 +474,7 @@ def transport():
     # Full-depth parallel folded sections; no taper across the entire roof.
     truss(b,(-6.6,-.37,3.41),12.7,.64,1.1)
     truss(b,(-6.36,.47,3.43),12.1,.55,.95)
-    truss(b,(-5.9,.05,3.26),10.8,.53,.74)
+    truss(b,(-5.9,.05,3.41),10.8,.53,.74)
     for x in [-6.46,5.79]:
         b.rod('paint',(x,-.96,3.51),(x,.99,3.51),.105,10)
         b.rod('steel',(x,-1.01,3.51),(x,1.04,3.51),.063,10)
@@ -499,10 +542,10 @@ def area(name,location,power,size,target):
     data=bpy.data.lights.new(name,'AREA');data.energy=power;data.shape='DISK';data.size=size
     obj=bpy.data.objects.new(name,data);studio.objects.link(obj);obj.location=location
     obj.rotation_euler=(Vector(target)-obj.location).to_track_quat('-Z','Y').to_euler()
-area('Key softbox',(6,-8,14),2600,9,(0,0,1.6))
-area('Rim strip',(-5,6,10),3400,8,(0,0,2))
-area('Front fill',(10,3,7),1700,7,(1,0,2))
-bpy.ops.object.camera_add(location=(18,-30,8.8))
+area('Key softbox',(6,8,14),2600,9,(0,0,1.6))
+area('Rim strip',(-5,-6,10),3400,8,(0,0,2))
+area('Front fill',(10,-3,7),1700,7,(1,0,2))
+bpy.ops.object.camera_add(location=(18,30,8.8))
 camera=bpy.context.object;camera.name='Studio_camera';to_studio(camera)
 camera.rotation_euler=(Vector((0,0,2.0))-camera.location).to_track_quat('-Z','Y').to_euler()
 camera.data.type='ORTHO';camera.data.ortho_scale=17.6;bpy.context.scene.camera=camera
