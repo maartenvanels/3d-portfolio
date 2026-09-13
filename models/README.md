@@ -1,0 +1,53 @@
+# City-boy visual study
+
+An original, editable Blender model inspired by the Spierings SK487-AT3 City Boy. It replaces the generic truck/tower geometry and the former line drawing. This is a portfolio illustration, not manufacturer CAD or a representation of unreleased City-boy v2 engineering.
+
+## Files
+
+- `cityboy.blend`: both working and transport poses, materials, studio camera and lighting.
+- `build_cityboy.py`: reproducible geometry and studio-render source for Blender 5.
+- `render_cityboy_views.py`: repeatable transport side/front/rear, working, cabin and base detail renders for visual review.
+- `../assets/cityboy-working.glb`: the working pose, exported in metres with embedded geometry and materials.
+- `../assets/cityboy-studio.jpg`: Cycles render of the folded transport pose for both portfolio languages and the WebGL fallback.
+
+Rebuild from the repository root:
+
+```powershell
+& 'C:\Program Files\Blender Foundation\Blender 5.0\blender.exe' --background --factory-startup --threads 6 --python models/build_cityboy.py
+npm run build
+npm test
+```
+
+The generator overwrites the `.blend`, `.glb` and `.jpg`; save manual Blender changes under a different filename before regenerating. Blender is only needed to edit or regenerate the asset, not to build, serve or view the site.
+
+## Reference
+
+The silhouette was studied from the manufacturer's [SK487-AT3 product page](https://www.spieringscranes.com/de/mobiler-turmdrehkran/sk487-at3-edrive/), [deployed crane photograph](https://www.spieringscranes.com/wp-content/uploads/City-boy-greyback-hotspot-1440x807.jpg), [transport photograph](https://www.spieringscranes.com/wp-content/uploads/SK487-AT3-City-Boy-vrij-schaduw-768x432.png) and [specification sheet](https://www.spieringscranes.com/wp-content/uploads/Specificaties-SK487-AT3-City-Boy_DU.pdf), consulted September 2026. No source photography or downloaded third-party geometry is included.
+
+The manufacturer's [English product brochure](https://www.spieringscranes.com/wp-content/uploads/Brochure-Spierings_SK487-AT3-eLift_ENG-1.pdf) supplied the primary visual references for this revision: the cabin and transport photographs on pages 1–3, the deployed crane on page 4, the dimensioned drawing on page 8 and the assembly sequence on page 9. The transport side view and deployed model were rendered and compared across three geometry revisions.
+
+The rear revision also uses the manufacturer's [rear service chest photograph](https://www.spieringscranes.com/wp-content/uploads/SpieringscranesCBdetail004-1440x1079.jpg). Additional rear angles from the [WSI scale-model review photographs](https://www.cranesetc.co.uk/library/wsireviews/52_2021/52_2021review.htm) informed the simplified ballast cradle and drum recess; the replica is a secondary visual reference, not dimensional evidence for the real machine.
+
+The 13.08 m overall road length includes folded jib overhangs; the carrier is shorter. Axle spacings are 3.330 m and 1.710 m. The model has curved wheel arches, a cantilevered cabin with its sliding rear panel, a compact equipment housing, exposed drums and folding linkages, and 7.20 m longitudinal outrigger spacing. The mast combines side channels with open braced faces. Three folding jib spans use alternating diagonals; a narrower sliding tip completes the 40 m jib. The rear suspension stays meet anchors on the machinery housing.
+
+Both cabin poses use the same geometry. In crane mode the cabin pitches 90 degrees around its lateral axis: the driving roof window faces forward along the jib and the driving windshield faces down. The cabin then sits vertically on its mast carriage. Public dimensions informed the proportions; small details and mechanical connections are simplified. The website's Cabin camera makes this arrangement inspectable at close range.
+
+The cabin is on vehicle-left in both poses. The complete construction is reflected across its longitudinal centre plane in `Builder.finish`, including the mast carriage and folded mechanisms, with reversed face winding. This is baked geometry, with no negative runtime scale. Studio lighting, review views and the website's Cabin camera follow the corrected side.
+
+Generate additional review views without altering the saved Blender scene:
+
+```powershell
+& 'C:\Program Files\Blender Foundation\Blender 5.0\blender.exe' --background models/cityboy.blend --threads 6 --python models/render_cityboy_views.py -- --views side cabin working --prefix qa/review
+```
+
+The bearing is placed behind the driving cabin, underneath an upper frame carrying the mast foot and engine cover. The housing has inset service hatches and a shaped lower door, with a narrow ladder recess next to the cabin. The ballast is one integrated lower apron with chamfered rear shoulders and a drum recess. The frame terminates inside this cradle instead of projecting across the access deck. A closed rear service chest and vertical light clusters finish the carrier. The rear access deck has no loose stack of outrigger plates in either pose. The `base` and `rear-base` review cameras show these connections in working mode.
+
+## Web export
+
+Current working export: 1,134,984 bytes, 29,554 triangles and 17 meshes, using 9 materials. The file and triangle limits remain 1.2 MB and 30,000 triangles. Independent slewing adds four material batches shared by the carrier and upperworks; the articulated model's draw budget is 17 meshes.
+
+Geometry is merged by material within each moving assembly. `CityBoy_Working` contains the stationary carrier, wheels, outriggers, deck and lower bearing races. Its child `CityBoy_Upperworks` pivots at the bearing centre (Blender coordinates 0.95, 0, 1.72 m) and carries the upper frame, ballast, mast, cabin, jib and hoist. The hook block and four hoist ropes have separate origins relative to this assembly, so the rope length follows the hook while slewing. The transport illustration retains its original pose.
+
+Opt-in machine movement gently slews the upperworks between -35 and +35 degrees, with a period of about 39 seconds. Pausing preserves the current angle and resumes from there. The camera fits the full swept envelope, including intermediate extrema; the Cabin camera rotates with the cabin. The existing 30 FPS cap and idle/offscreen/hidden-tab pauses remain in effect. There are no texture maps or remote decoder dependencies.
+
+Automated checks enforce a 1.2 MB file budget, fewer than 30,000 triangles and at most 17 mesh draws. They verify a stationary carrier and bearing pivot, the moving cabin and hoist connection throughout the slew range, and desktop/mobile camera coverage. The exported roof glazing is checked for its vehicle-left position and vertical, forward-facing crane orientation. Its own material batch makes these checks possible on the exported geometry.
