@@ -11,3 +11,9 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Local dependencies and QA output
+node_modules/
+qa/
+*.log
+*.blend1
