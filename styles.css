@@ -14,6 +14,8 @@
   box-sizing: border-box;
 }
 html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
 }
@@ -960,8 +962,13 @@ details[open] summary > span {
   }
 }
 @media (max-width: 800px) {
+  html {
+    scroll-padding-top: 88px;
+  }
   .site-header {
     height: 76px;
+    position: sticky;
+    top: 0;
   }
   .header-inner {
     gap: 18px;
@@ -1085,49 +1092,78 @@ details[open] summary > span {
   }
 }
 @media (max-width: 600px) {
+  html {
+    scroll-padding-top: 76px;
+  }
   .container {
     width: calc(100% - 40px);
   }
+  .site-header {
+    height: 64px;
+  }
   .header-inner {
-    gap: 14px;
+    gap: 6px;
   }
   .brand {
-    font-size: 14px;
+    font-size: 15px;
+    min-height: 44px;
+  }
+  .brand-mark {
+    width: 34px;
+    height: 34px;
   }
   .menu-toggle {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-left: auto;
-    padding: 10px 0;
+    min-height: 44px;
+    padding: 0 10px;
     border: 0;
     background: none;
     color: var(--ink);
-    font-size: 11px;
+    font-size: 13px;
   }
   .menu-toggle span {
-    font-size: 14px;
+    width: 18px;
+    font-size: 17px;
+    text-align: center;
   }
   .language-switch {
-    font-size: 10px;
-    padding-left: 12px;
-    gap: 5px;
+    font-size: 12px;
+    padding-left: 4px;
+    gap: 0;
+  }
+  .language-switch a {
+    display: grid;
+    place-items: center;
+    min-width: 36px;
+    min-height: 44px;
+    padding: 0;
   }
   .header-inner nav {
     display: flex;
-    flex-wrap: wrap;
-    gap: 5px 20px;
+    flex-direction: column;
     margin: 0;
     position: absolute;
-    top: 76px;
+    top: 100%;
     left: 0;
     right: 0;
     background: var(--paper);
-    padding: 15px 20px;
+    padding: 6px 20px 14px;
     border-bottom: 1px solid var(--line);
+    box-shadow: 0 18px 30px -18px #233c3b55;
+    font-size: 18px;
   }
   .header-inner nav a {
-    padding: 7px 0;
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner nav a:last-child {
+    border-bottom: 0;
   }
   .js-ready .header-inner nav {
     display: none;
@@ -1141,9 +1177,13 @@ details[open] summary > span {
   .js-ready .hero {
     padding-top: 34px;
   }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 1.2px;
+  }
   .hero h1 {
-    font-size: 54px;
-    letter-spacing: -2.8px;
+    font-size: clamp(40px, 13.5vw, 54px);
+    letter-spacing: -0.05em;
     margin-block: 22px;
   }
   .hero h1 br:nth-of-type(2) {
@@ -1153,72 +1193,115 @@ details[open] summary > span {
     margin-left: 0;
   }
   .hero .eyebrow {
-    font-size: 8px;
+    font-size: 10px;
     letter-spacing: 1px;
   }
   .hero-intro {
-    font-size: 14px;
-    line-height: 1.85;
+    font-size: 16px;
+    line-height: 1.75;
   }
   .hero-actions {
-    gap: 23px;
+    flex-wrap: wrap;
+    gap: 12px 23px;
     margin-top: 24px;
   }
   .hero-actions .button {
-    font-size: 11px;
-    padding: 14px 16px;
+    font-size: 14px;
+    min-height: 50px;
+    padding: 14px 18px;
   }
   .text-link {
-    font-size: 11px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+  .hero-signature strong {
+    font-size: 14px;
+  }
+  .hero-signature span {
+    font-size: 12px;
   }
   .workshop {
-    min-height: 500px;
+    min-height: 0;
   }
   .world-stage {
-    min-height: 310px;
+    min-height: 0;
+    height: clamp(300px, 88vw, 420px);
+    flex: none;
   }
   .world-tools {
     right: 10px;
-    gap: 3px;
+    bottom: 10px;
+    gap: 4px;
   }
   .world-tools button {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
+    font-size: 19px;
   }
   .workshop-heading {
     padding: 20px 18px 0;
   }
+  .workshop-heading .eyebrow {
+    font-size: 10px;
+  }
   .workshop-heading h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
   .world-caption {
     left: 18px;
     top: 12px;
-    font-size: 8px;
+    font-size: 11px;
+  }
+  .world-bottom {
+    padding: 12px 14px 12px;
+  }
+  .world-views {
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .world-views button {
-    font-size: 9px;
-    padding: 10px 5px;
+    flex: 1 1 auto;
+    font-size: 13px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-color: #c3cfc0;
   }
   .world-hint {
-    font-size: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .world-project-link {
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 48px;
+    margin-top: 4px;
   }
   .workshop-note {
-    font-size: 8px;
+    font-size: 11px;
     padding-inline: 14px;
   }
   .workshop.is-expanded {
-    inset: 8px;
+    inset: 0;
     min-height: 0;
+    border-radius: 0;
+    height: 100dvh;
   }
   .workshop.is-expanded .world-stage {
     min-height: 0;
+    height: auto;
+    flex: 1;
+  }
+  .workshop.is-expanded .workshop-note {
+    display: none;
   }
   .specialisms {
     padding-block: 18px;
   }
+  .specialisms > span {
+    font-size: 10px;
+  }
   .specialisms p {
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.9;
   }
   .specialisms i {
@@ -1235,7 +1318,11 @@ details[open] summary > span {
   }
   .section-heading > p {
     max-width: 100%;
-    font-size: 13px;
+    font-size: 15px;
+  }
+  .tags li {
+    font-size: 11px;
+    padding: 4px 8px;
   }
   .expertise-grid {
     grid-template-columns: 1fr;
@@ -1259,25 +1346,32 @@ details[open] summary > span {
     font-size: 21px;
   }
   .expertise-card > p {
-    font-size: 13px;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  .expertise-icon span {
+    font-size: 11px;
   }
   .expertise-card .tags {
     margin-top: 17px;
   }
   .filter-bar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 11px;
   }
   .filters {
-    gap: 5px;
+    gap: 6px;
+    flex-wrap: nowrap;
   }
   .filters button {
-    font-size: 10px;
-    padding: 9px 12px;
+    flex: 1 1 auto;
+    font-size: 13px;
+    min-height: 44px;
+    padding: 8px 10px;
   }
   .project-count {
-    font-size: 9px;
+    font-size: 11px;
   }
   .project-grid {
     grid-template-columns: 1fr;
@@ -1287,13 +1381,53 @@ details[open] summary > span {
     height: 190px;
   }
   .project-body {
-    padding: 25px;
+    padding: 22px 20px 12px;
+  }
+  .project-body .eyebrow {
+    font-size: 10px;
+  }
+  .art-index {
+    font-size: 10px;
   }
   .project-body h3 {
     font-size: 27px;
   }
+  .project-subtitle {
+    font-size: 14px;
+  }
   .project-body > p:not(.eyebrow):not(.project-subtitle) {
     min-height: 0;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  summary {
+    font-size: 14px;
+    min-height: 52px;
+    padding: 4px 0;
+  }
+  .project-detail {
+    padding: 0 0 12px;
+  }
+  .project-detail h4 {
+    font-size: 14px;
+    margin-top: 14px;
+  }
+  .project-detail p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  .project-links {
+    flex-wrap: wrap;
+    gap: 0 24px;
+    font-size: 14px;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .project-links a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 48px;
   }
   .about-section {
     grid-template-columns: 1fr;
@@ -1303,7 +1437,20 @@ details[open] summary > span {
     font-size: 37px;
   }
   .about-copy > p:not(.eyebrow) {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+  .timeline-date {
+    font-size: 12px;
+  }
+  .experience h3 {
+    font-size: 18px;
+  }
+  .experience .timeline-company {
     font-size: 14px;
+  }
+  .experience li > p:last-child {
+    font-size: 15px;
   }
   .contact-inner {
     grid-template-columns: 1fr;
@@ -1313,22 +1460,60 @@ details[open] summary > span {
   .contact-inner h2 {
     font-size: 35px;
   }
+  .contact-inner p:not(.eyebrow) {
+    font-size: 16px;
+  }
+  .contact-inner .button {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 15px;
+    min-height: 54px;
+  }
   .contact-links a {
-    font-size: 14px;
+    font-size: 16px;
+    padding-block: 14px;
+    overflow-wrap: anywhere;
+  }
+  .contact-links > span {
+    font-size: 12px;
   }
   .footer {
     flex-wrap: wrap;
     gap: 14px;
     align-items: center;
+    font-size: 13px;
+    padding-block: 12px;
   }
   .footer > span:nth-child(2) {
     display: none;
   }
   .footer a {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
   }
   .education {
     flex-direction: row;
+    font-size: 13px;
+  }
+}
+@media (max-width: 360px) {
+  .brand {
+    gap: 8px;
+  }
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+  }
+  .menu-toggle {
+    font-size: 0;
+    gap: 0;
+    min-width: 44px;
+    justify-content: center;
+  }
+  .language-switch a {
+    min-width: 32px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
