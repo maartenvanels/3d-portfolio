@@ -1,18 +1,20 @@
 const menu = document.querySelector(".menu-toggle");
 const navigation = document.querySelector("#navigation");
 document.documentElement.classList.add("js-ready");
+function setMenu(open) {
+  menu.setAttribute("aria-expanded", String(open));
+  if (open) menu.setAttribute("aria-label", menu.dataset.close);
+  else menu.removeAttribute("aria-label");
+  menu.lastChild.textContent = open ? "✕" : "☰";
+  navigation.classList.toggle("is-open", open);
+}
 function closeMenu() {
-  menu.setAttribute("aria-expanded", "false");
-  menu.firstChild.textContent = menu.dataset.open;
-  navigation.classList.remove("is-open");
+  setMenu(false);
 }
 menu.hidden = false;
-menu.addEventListener("click", () => {
-  const open = menu.getAttribute("aria-expanded") !== "true";
-  menu.setAttribute("aria-expanded", String(open));
-  menu.firstChild.textContent = open ? menu.dataset.close : menu.dataset.open;
-  navigation.classList.toggle("is-open", open);
-});
+menu.addEventListener("click", () =>
+  setMenu(menu.getAttribute("aria-expanded") !== "true"),
+);
 navigation.addEventListener("click", (event) => {
   if (event.target.closest("a")) closeMenu();
 });
